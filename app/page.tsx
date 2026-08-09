@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import Link from "next/link"
 
 import {
   ArrowRightIcon,
@@ -388,9 +389,8 @@ export default function Page() {
               ))}
             </div>
 
-            <a
-              href="#voice-workbench"
-              onClick={(event) => handleMenuClick(event, "#voice-workbench")}
+            <Link
+              href="/dashboard"
               className={cn(
                 buttonVariants({ size: "default" }),
                 "header-cta header-cta-motion ml-auto shrink-0 px-6",
@@ -400,7 +400,7 @@ export default function Page() {
               )}
             >
               Get started
-            </a>
+            </Link>
           </nav>
         </header>
 
