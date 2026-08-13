@@ -58,7 +58,7 @@ const planCatalog = {
       ],
       cta: "Start free",
       featured: false,
-      action: "#voice-workbench",
+      action: "#voice-training",
     },
     {
       name: "Pro",
@@ -102,7 +102,7 @@ const planCatalog = {
       ],
       cta: "Start free",
       featured: false,
-      action: "#voice-workbench",
+      action: "#voice-training",
     },
     {
       name: "Pro",
@@ -171,7 +171,8 @@ export function PricingSection({
                   isVisible ? "screen-shift-visible screen-shift-delay-2" : ""
                 }`}
               >
-                Start free. Upgrade when the voice becomes mission-critical.
+                <span className="block">Start free.</span>
+                <span className="block">Upgrade anytime.</span>
               </h2>
               <p
                 className={`screen-shift mt-4 max-w-[34rem] text-lg leading-relaxed text-muted-foreground ${

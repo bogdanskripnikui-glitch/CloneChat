@@ -13,7 +13,9 @@ import {
   MailIcon,
   MessageSquareTextIcon,
   NotebookPenIcon,
+  RotateCcwIcon,
   SendIcon,
+  TriangleAlertIcon,
   UploadIcon,
   XIcon,
 } from "lucide-react"
@@ -36,15 +38,17 @@ import {
 } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
+import { VoiceCapture, type VoiceSample } from "@/components/voice-capture"
 import { cn } from "@/lib/utils"
 
 const sampleText =
   "I believe clarity is a kindness. Good writing respects the reader’s time by saying what matters and leaving out what doesn’t. I like ideas that are concrete, useful, and honest. I prefer short sentences, active verbs, and a steady rhythm. I write like I think—direct, calm, and human."
 
-type AnalysisStatus = "idle" | "analyzing" | "complete"
+type AnalysisStatus = "idle" | "analyzing" | "complete" | "failed"
 type AnalysisPhase = "indeterminate" | "determinate"
+type VoiceAnalysisFailure = "too_short" | "low_quality"
 export type DraftKind = "post" | "message" | "email" | "article" | "reply"
-type SourceTab = "paste" | "upload" | "sources"
+type SourceTab = "paste" | "voice" | "upload" | "sources"
 type PaywallReason = "text_limit" | "analysis_limit"
 
 const FREE_CHARACTER_LIMIT = 300
@@ -97,10 +101,11 @@ export function VoiceWorkbench({
   const [analysisPhase, setAnalysisPhase] = useState<AnalysisPhase>("indeterminate")
   const [error, setError] = useState("")
   const [fileName, setFileName] = useState("")
+  const [voiceSample, setVoiceSample] = useState<VoiceSample | null>(null)
   const [fileInputKey, setFileInputKey] = useState(0)
   const [sourceTab, setSourceTab] = useState<SourceTab>("paste")
   const [selectedSource, setSelectedSource] = useState<
-    keyof typeof sourceSamples | "paste" | "upload"
+    keyof typeof sourceSamples | "paste" | "voice" | "upload"
   >("paste")
   const [sourceUrl, setSourceUrl] = useState("")
   const [showInputPanel, setShowInputPanel] = useState(true)
@@ -111,30 +116,38 @@ export function VoiceWorkbench({
   const [isNamingVoice, setIsNamingVoice] = useState(false)
   const [voiceName, setVoiceName] = useState("")
   const [voiceNameError, setVoiceNameError] = useState("")
+  const [voiceAnalysisFailure, setVoiceAnalysisFailure] =
+    useState<VoiceAnalysisFailure | null>(null)
   const resultRef = useRef<HTMLDivElement>(null)
   const voiceNameInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!isVisible || !startEmpty) return
 
-    setText("")
-    setStatus("idle")
-    setProgress(0)
-    setAnalysisPhase("indeterminate")
-    setError("")
-    setFileName("")
-    setFileInputKey((current) => current + 1)
-    setSourceTab("paste")
-    setSelectedSource("paste")
-    setSourceUrl("")
-    setShowInputPanel(true)
-    setAnalyzedTab("paste")
-    setAnalysisCount(0)
-    setPaywallReason(null)
-    setIsPaywallDismissed(false)
-    setIsNamingVoice(false)
-    setVoiceName("")
-    setVoiceNameError("")
+    const resetTimer = window.setTimeout(() => {
+      setText("")
+      setStatus("idle")
+      setProgress(0)
+      setAnalysisPhase("indeterminate")
+      setError("")
+      setFileName("")
+      setVoiceSample(null)
+      setFileInputKey((current) => current + 1)
+      setSourceTab("paste")
+      setSelectedSource("paste")
+      setSourceUrl("")
+      setShowInputPanel(true)
+      setAnalyzedTab("paste")
+      setAnalysisCount(0)
+      setPaywallReason(null)
+      setIsPaywallDismissed(false)
+      setIsNamingVoice(false)
+      setVoiceName("")
+      setVoiceNameError("")
+      setVoiceAnalysisFailure(null)
+    }, 0)
+
+    return () => window.clearTimeout(resetTimer)
   }, [isVisible, startEmpty])
 
   useEffect(() => {
@@ -159,8 +172,18 @@ export function VoiceWorkbench({
             window.clearTimeout(phaseTimer)
           }
           window.clearInterval(timer)
+          const failure =
+            sourceTab === "voice" && voiceSample
+              ? voiceSample.duration !== null && voiceSample.duration < 20
+                ? "too_short"
+                : voiceSample.file.size < 12000
+                  ? "low_quality"
+                  : null
+              : null
+
+          setVoiceAnalysisFailure(failure)
           setShowInputPanel(false)
-          setStatus("complete")
+          setStatus(failure ? "failed" : "complete")
         }
 
         return next
@@ -173,10 +196,10 @@ export function VoiceWorkbench({
       }
       window.clearInterval(timer)
     }
-  }, [analysisPhase, status])
+  }, [analysisPhase, sourceTab, status, voiceSample])
 
   useEffect(() => {
-    if (status === "complete") {
+    if (status === "complete" || status === "failed") {
       resultRef.current?.focus()
     }
   }, [status])
@@ -188,7 +211,12 @@ export function VoiceWorkbench({
   }, [isNamingVoice])
 
   function analyzeVoice() {
-    if (text.length > FREE_CHARACTER_LIMIT) {
+    if (sourceTab === "voice" && !voiceSample) {
+      setError("Record or upload a voice sample before analysis.")
+      return
+    }
+
+    if (sourceTab !== "voice" && text.length > FREE_CHARACTER_LIMIT) {
       setIsPaywallDismissed(false)
       setPaywallReason("text_limit")
       setError("")
@@ -204,7 +232,7 @@ export function VoiceWorkbench({
       return
     }
 
-    if (text.trim().length < 180) {
+    if (sourceTab !== "voice" && text.trim().length < 180) {
       setError(
         "Add at least 180 characters so the analysis can identify a reliable pattern."
       )
@@ -214,6 +242,7 @@ export function VoiceWorkbench({
     setError("")
     setIsNamingVoice(false)
     setVoiceNameError("")
+    setVoiceAnalysisFailure(null)
     setPaywallReason(null)
     setIsPaywallDismissed(false)
     setAnalyzedTab(sourceTab)
@@ -263,6 +292,16 @@ export function VoiceWorkbench({
     setShowInputPanel(true)
   }
 
+  function handleVoiceSample(sample: VoiceSample | null) {
+    setVoiceSample(sample)
+    setSelectedSource(sample ? "voice" : "paste")
+    setError("")
+    setPaywallReason(null)
+    setStatus("idle")
+    setVoiceAnalysisFailure(null)
+    setShowInputPanel(true)
+  }
+
   function openFromUrl() {
     const trimmed = sourceUrl.trim()
 
@@ -284,8 +323,10 @@ export function VoiceWorkbench({
   }
 
   const isResultTab = analyzedTab === sourceTab
-  const canShowCollapsedInput = status === "complete" && isResultTab
+  const canShowCollapsedInput =
+    (status === "complete" || status === "failed") && isResultTab
   const canShowResult = status === "complete" && isResultTab && !showInputPanel
+  const canShowFailure = status === "failed" && isResultTab && !showInputPanel
   const shouldShowInputPanel = !canShowCollapsedInput || showInputPanel
   const isPaywallVisible = paywallReason !== null && !isPaywallDismissed
   const paywallCopy =
@@ -388,11 +429,15 @@ export function VoiceWorkbench({
 
       <Tabs
         value={sourceTab}
-        onValueChange={(value) => setSourceTab(value as SourceTab)}
+        onValueChange={(value) => {
+          setSourceTab(value as SourceTab)
+          setError("")
+        }}
         className="mt-5 min-h-0 flex-1 max-[920px]:mt-4"
       >
         <TabsList variant="line" aria-label="Choose a writing source">
           <TabsTrigger value="paste">Paste text</TabsTrigger>
+          <TabsTrigger value="voice">Voice</TabsTrigger>
           <TabsTrigger value="upload">Upload file</TabsTrigger>
           <TabsTrigger value="sources">Other sources</TabsTrigger>
         </TabsList>
@@ -431,6 +476,18 @@ export function VoiceWorkbench({
                   <FieldError id="writing-error">{error}</FieldError>
                 </Field>
               </FieldGroup>
+            </TabsContent>
+
+            <TabsContent
+              value="voice"
+              className="min-h-0 overflow-y-auto pt-4 pr-2 max-[920px]:pt-3"
+            >
+              <VoiceCapture
+                value={voiceSample}
+                error={sourceTab === "voice" ? error : ""}
+                onChange={handleVoiceSample}
+                onError={setError}
+              />
             </TabsContent>
 
             <TabsContent
@@ -569,13 +626,19 @@ export function VoiceWorkbench({
               className="flex w-full items-center justify-between rounded-xl border border-border bg-background px-4 py-3 text-left transition-colors duration-160 hover:bg-muted/40"
             >
               <div>
-                <p className="text-sm font-medium">Writing samples hidden</p>
+                <p className="text-sm font-medium">
+                  {sourceTab === "voice"
+                    ? "Voice sample hidden"
+                    : "Writing samples hidden"}
+                </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Open your source text again and the result panel will collapse.
+                  {sourceTab === "voice"
+                    ? "Open the recording again to review or replace it."
+                    : "Open your source text again and the result panel will collapse."}
                 </p>
               </div>
               <span className="text-sm font-medium text-foreground">
-                Open samples
+                {sourceTab === "voice" ? "Open recording" : "Open samples"}
               </span>
             </button>
           </div>
@@ -589,7 +652,11 @@ export function VoiceWorkbench({
             aria-label="Voice analysis progress"
             className="gap-4"
           >
-            <ProgressLabel>Finding patterns in your writing…</ProgressLabel>
+            <ProgressLabel>
+              {sourceTab === "voice"
+                ? "Finding patterns in your voice…"
+                : "Finding patterns in your writing…"}
+            </ProgressLabel>
             <ProgressTrack>
               <ProgressIndicator />
               {analysisPhase === "determinate" ? (
@@ -666,7 +733,9 @@ export function VoiceWorkbench({
                     Your voice profile is ready
                   </div>
                   <h3 className="mt-3 text-xl font-medium tracking-[-0.035em] sm:text-2xl">
-                    We saved the rhythm, tone, and vocabulary from your writing.
+                    {sourceTab === "voice"
+                      ? "We saved the tone, pacing, and delivery from your voice."
+                      : "We saved the rhythm, tone, and vocabulary from your writing."}
                   </h3>
                   <p className="mt-2 max-w-xl text-sm leading-relaxed text-primary-foreground/68">
                     We saved a reusable baseline for every new draft and conversation.
@@ -690,15 +759,69 @@ export function VoiceWorkbench({
               </div>
             )}
           </div>
+        ) : canShowFailure && voiceAnalysisFailure ? (
+          <div
+            ref={resultRef}
+            tabIndex={-1}
+            role="alert"
+            aria-live="assertive"
+            className="result-enter rounded-xl bg-primary p-6 text-primary-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:p-7"
+          >
+            <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <TriangleAlertIcon aria-hidden="true" />
+                  We couldn’t analyze this recording
+                </div>
+                <h3 className="mt-3 text-xl font-medium tracking-[-0.035em] sm:text-2xl">
+                  {voiceAnalysisFailure === "too_short"
+                    ? "We need a longer voice sample."
+                    : "We couldn’t hear your voice clearly enough."}
+                </h3>
+                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-primary-foreground/68">
+                  {voiceAnalysisFailure === "too_short"
+                    ? "This recording is under 20 seconds. Record 20–60 seconds with a few complete sentences."
+                    : "The audio is too quiet or unclear. Move closer to the microphone and reduce background noise."}
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                className="shrink-0"
+                onClick={() => {
+                  handleVoiceSample(null)
+                  setSourceTab("voice")
+                  setShowInputPanel(true)
+                }}
+              >
+                <RotateCcwIcon data-icon="inline-start" aria-hidden="true" />
+                Try another sample
+              </Button>
+            </div>
+          </div>
         ) : (
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-2.5 text-sm text-muted-foreground">
               <LockKeyholeIcon aria-hidden="true" />
-              <span>Your text stays private and can be deleted anytime.</span>
+              <span>
+                {sourceTab === "voice"
+                  ? "Your voice sample stays private and can be deleted anytime."
+                  : "Your text stays private and can be deleted anytime."}
+              </span>
             </div>
             <div className="flex items-center justify-between gap-5 sm:justify-end">
               <span className="text-sm text-muted-foreground tabular-nums">
-                {text.length.toLocaleString()} / 10,000
+                {sourceTab === "voice"
+                  ? voiceSample?.duration
+                    ? `${Math.floor(voiceSample.duration / 60)}:${(
+                        voiceSample.duration % 60
+                      )
+                        .toString()
+                        .padStart(2, "0")}`
+                    : voiceSample
+                      ? "Audio ready"
+                      : "No audio"
+                  : `${text.length.toLocaleString()} / 10,000`}
               </span>
               {canShowCollapsedInput ? (
                 <Button type="button" onClick={() => setShowInputPanel(false)}>

@@ -5,48 +5,30 @@ import Link from "next/link"
 
 import {
   ArrowRightIcon,
-  FileTextIcon,
-  MailIcon,
-  MessageSquareTextIcon,
-  NotebookPenIcon,
-  SendIcon,
   SparklesIcon,
 } from "lucide-react"
 
 import { FooterSection, PricingSection } from "@/components/landing-sections"
 import { RotatingHeroWord } from "@/components/rotating-hero-word"
 import { VoiceCloneChat } from "@/components/voice-clone-chat"
-import {
-  type DraftKind,
-  VoiceWorkbench,
-  WritingModes,
-} from "@/components/voice-workbench"
+import { VoiceFlowDiagram } from "@/components/voice-flow-diagram"
+import { VoiceTrainingSection } from "@/components/voice-training-section"
+import { WritingModes } from "@/components/voice-workbench"
 import { buttonVariants } from "@/components/ui/button"
 import { useMagneticProximitySurfaces } from "@/hooks/use-magnetic-proximity-surfaces"
 import { cn } from "@/lib/utils"
 
 const navigation = [
   { label: "Your voice", href: "#main-content" },
-  { label: "How it works", href: "#how-it-works" },
+  { label: "Train your voice", href: "#voice-training" },
+  { label: "AI clone", href: "#ai-clone" },
+  { label: "Writing modes", href: "#how-it-works" },
   { label: "Pricing", href: "#pricing" },
   { label: "Get in touch", href: "#footer-cta" },
 ]
 
-const useCases = [
-  { label: "Posts", icon: NotebookPenIcon, value: "post" },
-  { label: "Messages", icon: MessageSquareTextIcon, value: "message" },
-  { label: "Emails", icon: MailIcon, value: "email" },
-  { label: "Articles", icon: FileTextIcon, value: "article" },
-  { label: "Replies", icon: SendIcon, value: "reply" },
-] as const satisfies ReadonlyArray<{
-  label: string
-  icon: typeof NotebookPenIcon
-  value: DraftKind
-}>
-
 export default function Page() {
   const [isHeroVisible, setIsHeroVisible] = useState(false)
-  const [activeDraft, setActiveDraft] = useState<DraftKind>("post")
   const [activeNavHref, setActiveNavHref] = useState("#main-content")
   const [scrollDirection, setScrollDirection] = useState<"forward" | "backward">(
     "forward"
@@ -411,7 +393,7 @@ export default function Page() {
                 id="hero-heading"
                 className={`screen-shift ${
                   isHeroVisible ? "screen-shift-visible screen-shift-delay-2" : ""
-                } text-[clamp(3rem,5.4vw,4.9rem)] leading-[0.94] font-medium tracking-[-0.04em] text-balance`}
+                } text-[clamp(2.35rem,4.6vw,4.35rem)] leading-[0.94] font-medium tracking-[-0.04em] text-balance`}
               >
                 <RotatingHeroWord />
               </h1>
@@ -429,18 +411,17 @@ export default function Page() {
                   isHeroVisible ? "screen-shift-visible screen-shift-delay-4" : ""
                 }`}
               >
-                <a
-                  href="#voice-workbench"
-                  onClick={(event) =>
-                    handleMenuClick(event, "#voice-workbench")
-                  }
+                <Link
+                  href="/dashboard"
                   className={cn(buttonVariants({ size: "lg" }))}
                 >
                   Start with my voice
-                </a>
+                </Link>
                 <a
-                  href="#ai-clone"
-                  onClick={(event) => handleMenuClick(event, "#ai-clone")}
+                  href="#voice-training"
+                  onClick={(event) =>
+                    handleMenuClick(event, "#voice-training")
+                  }
                   className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
                 >
                   See how it works
@@ -457,63 +438,12 @@ export default function Page() {
               </p>
             </div>
 
-            <VoiceWorkbench
-              isVisible={isHeroVisible}
-              onNavigate={navigateToSection}
-            />
+            <VoiceFlowDiagram isActive={isHeroVisible} />
           </div>
-
-          <section
-            id="use-cases"
-            aria-label="Use cases"
-            className={`hero-use-cases-strip screen-shift w-full pt-5 pb-8 sm:pt-6 sm:pb-10 max-[920px]:pt-3 max-[920px]:pb-6 ${
-              isHeroVisible ? "screen-shift-visible screen-shift-delay-6" : ""
-            }`}
-          >
-            <div className="w-full">
-              <div className="flex w-full items-center justify-between">
-                {useCases.map(({ label, icon: Icon, value }, index) => (
-                  <div key={label} className="flex flex-1 items-center">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveDraft(value)
-                        navigateToSection("#voice-workbench")
-                      }}
-                      className={cn(
-                        "flex w-full items-center justify-center gap-4 py-3 transition-opacity duration-160 hover:opacity-100 sm:gap-5",
-                        value === "message" ? "message-icon-trigger" : ""
-                      )}
-                    >
-                      <Icon
-                        aria-hidden="true"
-                        strokeWidth={1.45}
-                        className="size-6 text-foreground sm:size-7"
-                      />
-                      <span
-                        className={`text-[0.95rem] font-medium sm:text-base ${
-                          activeDraft === value
-                            ? "text-foreground"
-                            : "text-foreground/72"
-                        }`}
-                      >
-                        {label}
-                      </span>
-                    </button>
-                    {index < useCases.length - 1 ? (
-                      <span
-                        aria-hidden="true"
-                        className="mx-auto h-12 w-px bg-border/90 sm:h-14"
-                      />
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
         </div>
       </section>
 
+      <VoiceTrainingSection onNavigate={navigateToSection} />
       <VoiceCloneChat />
       <WritingModes />
       <PricingSection onNavigate={navigateToSection} />

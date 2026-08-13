@@ -26,9 +26,11 @@ export function RotatingHeroWord() {
 
   return (
     <>
-      <span className="sr-only">Your words. Your rhythm. Your voice.</span>
-      <span aria-hidden="true" className="inline-flex items-baseline gap-[0.14em]">
-        <span>Your</span>
+      <span className="sr-only">
+        AI clone with your words, rhythm, and voice.
+      </span>
+      <span aria-hidden="true" className="inline-flex flex-col items-start">
+        <span className="whitespace-nowrap">AI clone with your</span>
         <span className="hero-word-window">
           <span
             key={words[index]}

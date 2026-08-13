@@ -100,6 +100,11 @@
   height: 100%;
 }
 
+[data-flow-particle] {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
 .dashboard-surface::before {
   content: "";
   position: absolute;
@@ -334,7 +339,7 @@
   color: var(--foreground);
 }
 
-.header-nav-compact .header-nav-link.is-active::after {
+.header-nav-compact .header-nav-link.is-complete:not(:first-child)::after {
   content: "";
   position: absolute;
   top: 0.18rem;
@@ -541,6 +546,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  [data-flow-particle] {
+    display: none;
+  }
+
   html {
     scroll-behavior: auto;
   }
