@@ -365,7 +365,7 @@ export function VoiceWorkbench({
     <section
       id="voice-workbench"
       aria-labelledby="workbench-title"
-      className={`screen-shift relative z-10 w-full max-w-[64rem] min-w-0 justify-self-end max-sm:h-full ${
+      className={`screen-shift relative z-10 min-h-0 w-full max-w-[64rem] min-w-0 justify-self-end max-sm:h-full max-sm:overflow-hidden ${
         isVisible ? "screen-shift-visible screen-shift-delay-4" : ""
       }`}
     >
@@ -434,7 +434,7 @@ export function VoiceWorkbench({
             setSourceTab(value as SourceTab)
             setError("")
           }}
-          className="mt-5 min-h-0 flex-1 max-[920px]:mt-4"
+          className="mt-5 min-h-0 flex-1 overflow-hidden max-[920px]:mt-4"
         >
           <TabsList variant="line" aria-label="Choose a writing source">
             <TabsTrigger value="paste">Paste text</TabsTrigger>
@@ -447,7 +447,7 @@ export function VoiceWorkbench({
             <>
               <TabsContent
                 value="paste"
-                className="min-h-0 overflow-y-auto pt-4 pr-2 max-[920px]:pt-3"
+                className="min-h-0 overflow-y-auto overscroll-contain pt-4 pr-2 pb-2 max-[920px]:pt-3"
               >
                 <FieldGroup>
                   <Field data-invalid={Boolean(error)}>
@@ -481,7 +481,7 @@ export function VoiceWorkbench({
 
               <TabsContent
                 value="voice"
-                className="min-h-0 overflow-y-auto pt-4 pr-2 max-[920px]:pt-3"
+                className="min-h-0 overflow-y-auto overscroll-contain pt-4 pr-2 pb-2 max-[920px]:pt-3"
               >
                 <VoiceCapture
                   value={voiceSample}
@@ -493,7 +493,7 @@ export function VoiceWorkbench({
 
               <TabsContent
                 value="upload"
-                className="min-h-0 overflow-y-auto pt-4 pr-2 max-[920px]:pt-3"
+                className="min-h-0 overflow-y-auto overscroll-contain pt-4 pr-2 pb-2 max-[920px]:pt-3"
               >
                 <FieldGroup>
                   <Field data-invalid={Boolean(error)}>
@@ -536,7 +536,7 @@ export function VoiceWorkbench({
 
               <TabsContent
                 value="sources"
-                className="min-h-0 overflow-y-auto pt-4 pr-2 max-[920px]:pt-3"
+                className="min-h-0 overflow-y-auto overscroll-contain pt-4 pr-2 pb-2 max-[920px]:pt-3"
               >
                 <FieldGroup>
                   <Field>
