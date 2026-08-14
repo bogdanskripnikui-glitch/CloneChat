@@ -447,7 +447,7 @@ export function VoiceWorkbench({
             <>
               <TabsContent
                 value="paste"
-                className="no-scrollbar min-h-0 overflow-y-auto overscroll-contain pt-4 pr-2 pb-2 max-[920px]:pt-3"
+                className="no-scrollbar min-h-0 touch-pan-y overflow-y-auto overscroll-contain pt-4 pr-2 pb-2 [-webkit-overflow-scrolling:touch] max-[920px]:pt-3"
               >
                 <FieldGroup>
                   <Field data-invalid={Boolean(error)}>
@@ -481,7 +481,7 @@ export function VoiceWorkbench({
 
               <TabsContent
                 value="voice"
-                className="no-scrollbar min-h-0 overflow-y-auto overscroll-contain pt-4 pr-2 pb-2 max-[920px]:pt-3"
+                className="no-scrollbar min-h-0 touch-pan-y overflow-y-auto overscroll-contain pt-4 pr-2 pb-2 [-webkit-overflow-scrolling:touch] max-[920px]:pt-3"
               >
                 <VoiceCapture
                   value={voiceSample}
@@ -493,7 +493,7 @@ export function VoiceWorkbench({
 
               <TabsContent
                 value="upload"
-                className="no-scrollbar min-h-0 overflow-y-auto overscroll-contain pt-4 pr-2 pb-2 max-[920px]:pt-3"
+                className="no-scrollbar min-h-0 touch-pan-y overflow-y-auto overscroll-contain pt-4 pr-2 pb-2 [-webkit-overflow-scrolling:touch] max-[920px]:pt-3"
               >
                 <FieldGroup>
                   <Field data-invalid={Boolean(error)}>
@@ -536,7 +536,7 @@ export function VoiceWorkbench({
 
               <TabsContent
                 value="sources"
-                className="no-scrollbar min-h-0 overflow-y-auto overscroll-contain pt-4 pr-2 pb-2 max-[920px]:pt-3"
+                className="no-scrollbar min-h-0 touch-pan-y overflow-y-auto overscroll-contain pt-4 pr-2 pb-2 [-webkit-overflow-scrolling:touch] max-[920px]:pt-3"
               >
                 <FieldGroup>
                   <Field>

@@ -1272,7 +1272,7 @@ export function DashboardShell() {
         }}
         className="m-auto no-scrollbar w-[min(68rem,calc(100vw-2rem))] max-w-none overflow-visible rounded-[16px] border-0 bg-transparent p-0 text-foreground backdrop:bg-primary/38 backdrop:backdrop-blur-[3px] max-sm:h-[calc(100svh-2rem)] max-sm:max-h-[calc(100svh-2rem)] max-sm:overflow-hidden"
       >
-        <div className="relative">
+        <div className="relative h-full min-h-0">
           <h2 id="add-voice-dialog-title" className="sr-only">
             Create a new voice profile
           </h2>
