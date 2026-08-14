@@ -145,8 +145,8 @@ export function PricingSection({
       aria-labelledby="pricing-title"
       className="flex h-[100svh] min-h-0 snap-start snap-always items-stretch overflow-hidden bg-transparent"
     >
-      <div className="mobile-section-safe mx-auto flex h-full min-h-0 w-full max-w-[1440px] flex-col justify-start px-4 pt-20 pb-4 sm:px-5 sm:pt-30 sm:pb-6 xl:justify-center xl:px-8 xl:py-28">
-        <div className="flex min-h-0 flex-col gap-4 sm:gap-6 xl:gap-8">
+      <div className="mobile-section-safe mx-auto flex h-full min-h-0 w-full max-w-[1440px] flex-col justify-start px-4 pt-20 pb-4 max-sm:!pt-[calc(6rem+env(safe-area-inset-top))] sm:px-5 sm:pt-30 sm:pb-6 xl:justify-center xl:px-8 xl:py-28">
+        <div className="flex h-full min-h-0 flex-col gap-4 sm:gap-6 xl:h-auto xl:gap-8">
           <div className="flex shrink-0 flex-col gap-4 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
             <div
               className={`screen-shift max-w-[40rem] ${
@@ -211,7 +211,7 @@ export function PricingSection({
             </div>
           </div>
 
-          <div className="-mx-4 no-scrollbar flex min-h-0 snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto overscroll-x-contain px-4 pb-1 sm:-mx-5 sm:scroll-px-5 sm:px-5 xl:mx-0 xl:grid xl:grid-cols-3 xl:overflow-visible xl:px-0 xl:pb-0">
+          <div className="-mx-4 no-scrollbar flex min-h-0 flex-1 snap-x snap-mandatory scroll-px-4 gap-4 overflow-x-auto overscroll-x-contain px-4 pb-1 sm:-mx-5 sm:scroll-px-5 sm:px-5 xl:mx-0 xl:grid xl:flex-none xl:grid-cols-3 xl:overflow-visible xl:px-0 xl:pb-0">
             {planCatalog[billingCycle].map((plan, index) => (
               <div
                 key={plan.name}
@@ -219,11 +219,11 @@ export function PricingSection({
                   isVisible
                     ? `screen-shift-visible ${index === 0 ? "screen-shift-delay-2" : index === 1 ? "screen-shift-delay-3" : "screen-shift-delay-4"}`
                     : ""
-                } min-h-0 shrink-0 basis-[calc(100vw-2.75rem)] snap-center sm:basis-[min(28rem,calc(100vw-4rem))] xl:min-w-0 xl:basis-auto`}
+                } h-full min-h-0 shrink-0 basis-[calc(100vw-2.75rem)] snap-center sm:basis-[min(28rem,calc(100vw-4rem))] xl:h-auto xl:min-w-0 xl:basis-auto`}
               >
                 <article
                   data-magnetic-proximity
-                  className={`flex h-[clamp(19rem,44svh,23rem)] min-h-0 flex-col overflow-hidden rounded-[24px] p-5 shadow-[0_20px_60px_rgba(29,30,34,0.05)] sm:p-7 xl:h-auto xl:min-h-[30rem] xl:p-8 ${
+                  className={`flex h-full min-h-0 flex-col overflow-hidden rounded-[24px] p-5 shadow-[0_20px_60px_rgba(29,30,34,0.05)] sm:p-7 xl:h-auto xl:min-h-[30rem] xl:p-8 ${
                     plan.featured
                       ? "bg-primary text-primary-foreground"
                       : "bg-white/84 text-foreground"

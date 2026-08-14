@@ -230,6 +230,9 @@ export function DashboardShell() {
   const [editingVoiceId, setEditingVoiceId] = useState<string | null>(null)
   const [editingVoiceName, setEditingVoiceName] = useState("")
   const voiceDialogRef = useRef<HTMLDialogElement>(null)
+  const voiceLongPressTimerRef = useRef<number | null>(null)
+  const voiceLongPressStartRef = useRef({ x: 0, y: 0 })
+  const voiceLongPressTriggeredRef = useRef(false)
 
   useEffect(() => {
     const dialog = voiceDialogRef.current
@@ -249,6 +252,43 @@ export function DashboardShell() {
     const timer = window.setTimeout(() => setIsVoiceDialogReady(true), 420)
     return () => window.clearTimeout(timer)
   }, [isVoiceDialogOpen, voiceDialogKey])
+
+  useEffect(() => {
+    const hasMobileVoiceMenu =
+      openVoiceMenuId !== null &&
+      window.matchMedia("(max-width: 639px)").matches
+
+    if (!isVoiceDialogOpen && !isMobileMenuOpen && !hasMobileVoiceMenu) return
+
+    const scrollY = window.scrollY
+    const body = document.body
+    const root = document.documentElement
+    const previousBody = {
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+      overflow: body.style.overflow,
+    }
+    const previousRootOverflow = root.style.overflow
+    const previousRootOverscroll = root.style.overscrollBehavior
+
+    body.style.position = "fixed"
+    body.style.top = `-${scrollY}px`
+    body.style.width = "100%"
+    body.style.overflow = "hidden"
+    root.style.overflow = "hidden"
+    root.style.overscrollBehavior = "none"
+
+    return () => {
+      body.style.position = previousBody.position
+      body.style.top = previousBody.top
+      body.style.width = previousBody.width
+      body.style.overflow = previousBody.overflow
+      root.style.overflow = previousRootOverflow
+      root.style.overscrollBehavior = previousRootOverscroll
+      window.scrollTo(0, scrollY)
+    }
+  }, [isMobileMenuOpen, isVoiceDialogOpen, openVoiceMenuId])
 
   useEffect(() => {
     function closeVoiceMenu(event: PointerEvent) {
@@ -344,6 +384,39 @@ export function DashboardShell() {
     cancelRename()
   }
 
+  function clearVoiceLongPressTimer() {
+    if (voiceLongPressTimerRef.current === null) return
+    window.clearTimeout(voiceLongPressTimerRef.current)
+    voiceLongPressTimerRef.current = null
+  }
+
+  function startVoiceLongPress(
+    event: React.PointerEvent<HTMLElement>,
+    voiceId: string
+  ) {
+    if (event.pointerType === "mouse") return
+
+    clearVoiceLongPressTimer()
+    voiceLongPressTriggeredRef.current = false
+    voiceLongPressStartRef.current = { x: event.clientX, y: event.clientY }
+    voiceLongPressTimerRef.current = window.setTimeout(() => {
+      voiceLongPressTriggeredRef.current = true
+      setOpenVoiceMenuId(voiceId)
+      navigator.vibrate?.(10)
+    }, 520)
+  }
+
+  function moveVoiceLongPress(event: React.PointerEvent<HTMLElement>) {
+    const { x, y } = voiceLongPressStartRef.current
+    if (Math.hypot(event.clientX - x, event.clientY - y) > 8) {
+      clearVoiceLongPressTimer()
+    }
+  }
+
+  function finishVoiceLongPress() {
+    clearVoiceLongPressTimer()
+  }
+
   async function copyResult() {
     if (!resultText) return
     await navigator.clipboard.writeText(resultText)
@@ -363,6 +436,7 @@ export function DashboardShell() {
   }
 
   const voiceCards = voices
+  const openVoice = voices.find((voice) => voice.id === openVoiceMenuId)
   return (
     <main className="dashboard-surface relative min-h-svh overflow-x-hidden bg-background">
       <div
@@ -581,14 +655,23 @@ export function DashboardShell() {
                       <div
                         role="region"
                         aria-label="Voice profiles"
-                        tabIndex={0}
-                        className="-mx-4 no-scrollbar flex min-w-0 touch-pan-x snap-x snap-mandatory scroll-px-4 gap-2.5 overflow-x-auto overscroll-x-contain px-4 pb-2 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:mx-0 sm:scroll-px-0 sm:gap-3 sm:px-0"
+                        className="-mx-4 no-scrollbar flex min-w-0 touch-pan-x snap-x snap-mandatory scroll-px-4 gap-2.5 overflow-x-auto overscroll-x-contain px-4 pb-2 sm:mx-0 sm:scroll-px-0 sm:gap-3 sm:px-0"
                       >
                         {voiceCards.map((voice, index) => {
                           const isActive = voice.id === activeVoice?.id
                           return (
                             <article
                               key={voice.id}
+                              onPointerDown={(event) =>
+                                startVoiceLongPress(event, voice.id)
+                              }
+                              onPointerMove={moveVoiceLongPress}
+                              onPointerUp={finishVoiceLongPress}
+                              onPointerCancel={finishVoiceLongPress}
+                              onContextMenu={(event) => {
+                                event.preventDefault()
+                                setOpenVoiceMenuId(voice.id)
+                              }}
                               className={cn(
                                 "relative h-[4.5rem] w-fit max-w-[13rem] min-w-[10.75rem] shrink-0 snap-start rounded-[14px] border px-4 py-3.5 text-center sm:w-[14rem] sm:max-w-none sm:min-w-[14rem] sm:p-4 sm:pr-11 sm:text-left",
                                 isActive
@@ -600,7 +683,15 @@ export function DashboardShell() {
                               <button
                                 type="button"
                                 aria-label={`Use ${voice.name}`}
-                                onClick={() => setActiveVoiceId(voice.id)}
+                                onClick={(event) => {
+                                  if (voiceLongPressTriggeredRef.current) {
+                                    event.preventDefault()
+                                    event.stopPropagation()
+                                    voiceLongPressTriggeredRef.current = false
+                                    return
+                                  }
+                                  setActiveVoiceId(voice.id)
+                                }}
                                 className="absolute inset-0 z-0 rounded-[14px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
                               />
                               {editingVoiceId === voice.id ? (
@@ -1128,6 +1219,49 @@ export function DashboardShell() {
           </div>
         </div>
       </div>
+
+      {openVoice ? (
+        <div className="fixed inset-0 z-50 flex items-end bg-primary/24 p-4 backdrop-blur-[2px] sm:hidden">
+          <div
+            data-voice-menu
+            role="menu"
+            aria-label={`${openVoice.name} actions`}
+            className="w-full rounded-[18px] bg-background p-2 shadow-[0_18px_48px_rgba(29,30,34,0.2)]"
+          >
+            <div className="px-3 pt-2 pb-3">
+              <p className="truncate text-sm font-medium">{openVoice.name}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Voice profile actions
+              </p>
+            </div>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => renameVoice(openVoice)}
+              className="flex h-12 w-full items-center gap-3 rounded-[12px] px-3 text-left text-sm transition-colors active:bg-muted"
+            >
+              <PencilIcon aria-hidden="true" className="size-4" />
+              Rename
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => removeVoice(openVoice.id)}
+              className="flex h-12 w-full items-center gap-3 rounded-[12px] px-3 text-left text-sm text-destructive transition-colors active:bg-destructive/8"
+            >
+              <Trash2Icon aria-hidden="true" className="size-4" />
+              Delete
+            </button>
+            <button
+              type="button"
+              onClick={() => setOpenVoiceMenuId(null)}
+              className="mt-1 h-12 w-full rounded-[12px] bg-muted text-sm font-medium"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       <dialog
         ref={voiceDialogRef}
