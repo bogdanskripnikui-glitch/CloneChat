@@ -673,7 +673,7 @@ export function DashboardShell() {
                                 setOpenVoiceMenuId(voice.id)
                               }}
                               className={cn(
-                                "relative h-[4.5rem] w-fit max-w-[13rem] min-w-[10.75rem] shrink-0 snap-start rounded-[14px] border px-4 py-3.5 text-center sm:w-[14rem] sm:max-w-none sm:min-w-[14rem] sm:p-4 sm:pr-11 sm:text-left",
+                                "relative h-[4.5rem] w-fit max-w-[13rem] min-w-[10.75rem] shrink-0 touch-pan-x snap-start rounded-[14px] border px-4 py-3.5 text-center select-none [-webkit-touch-callout:none] sm:w-[14rem] sm:max-w-none sm:min-w-[14rem] sm:p-4 sm:pr-11 sm:text-left",
                                 isActive
                                   ? "border-primary bg-primary text-primary-foreground"
                                   : "border-border/70 bg-white/72 text-foreground",
@@ -1270,7 +1270,7 @@ export function DashboardShell() {
           setIsVoiceDialogReady(false)
           setIsVoiceDialogOpen(false)
         }}
-        className="m-auto w-[min(68rem,calc(100vw-2rem))] max-w-none overflow-visible rounded-[16px] border-0 bg-transparent p-0 text-foreground backdrop:bg-primary/38 backdrop:backdrop-blur-[3px]"
+        className="m-auto no-scrollbar w-[min(68rem,calc(100vw-2rem))] max-w-none overflow-visible rounded-[16px] border-0 bg-transparent p-0 text-foreground backdrop:bg-primary/38 backdrop:backdrop-blur-[3px] max-sm:h-[calc(100svh-2rem)] max-sm:max-h-[calc(100svh-2rem)] max-sm:overflow-hidden"
       >
         <div className="relative">
           <h2 id="add-voice-dialog-title" className="sr-only">
