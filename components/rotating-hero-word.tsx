@@ -29,13 +29,13 @@ export function RotatingHeroWord() {
       <span className="sr-only">
         AI clone with your words, rhythm, and voice.
       </span>
-      <span aria-hidden="true" className="inline-flex flex-col items-start">
+      <span
+        aria-hidden="true"
+        className="inline-flex flex-col items-center lg:items-start"
+      >
         <span className="whitespace-nowrap">AI clone with your</span>
         <span className="hero-word-window">
-          <span
-            key={words[index]}
-            className={`hero-word hero-word-${phase}`}
-          >
+          <span key={words[index]} className={`hero-word hero-word-${phase}`}>
             {words[index]}.
           </span>
         </span>

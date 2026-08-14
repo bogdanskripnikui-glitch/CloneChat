@@ -3,10 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 
-import {
-  ArrowRightIcon,
-  SparklesIcon,
-} from "lucide-react"
+import { ArrowRightIcon, SparklesIcon } from "lucide-react"
 
 import { FooterSection, PricingSection } from "@/components/landing-sections"
 import { RotatingHeroWord } from "@/components/rotating-hero-word"
@@ -30,9 +27,9 @@ const navigation = [
 export default function Page() {
   const [isHeroVisible, setIsHeroVisible] = useState(false)
   const [activeNavHref, setActiveNavHref] = useState("#main-content")
-  const [scrollDirection, setScrollDirection] = useState<"forward" | "backward">(
-    "forward"
-  )
+  const [scrollDirection, setScrollDirection] = useState<
+    "forward" | "backward"
+  >("forward")
   const dotFieldRef = useRef<HTMLCanvasElement>(null)
   const mainRef = useRef<HTMLElement>(null)
   const heroRef = useRef<HTMLElement>(null)
@@ -61,7 +58,9 @@ export default function Page() {
     const context = canvas.getContext("2d")
     if (!context) return
 
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches
     const pointer = {
       x: window.innerWidth / 2,
       y: window.innerHeight / 2,
@@ -240,13 +239,16 @@ export default function Page() {
       const scrollTop = mainNode.scrollTop
 
       if (Math.abs(scrollTop - previousScrollTop) > 1) {
-        setScrollDirection(scrollTop > previousScrollTop ? "forward" : "backward")
+        setScrollDirection(
+          scrollTop > previousScrollTop ? "forward" : "backward"
+        )
         previousScrollTop = scrollTop
       }
 
       const activeSection =
         trackedSections.findLast(
-          ({ element }) => scrollTop + viewportHeight * 0.38 >= element.offsetTop
+          ({ element }) =>
+            scrollTop + viewportHeight * 0.38 >= element.offsetTop
         ) ?? trackedSections[0]
 
       if (activeSection) {
@@ -302,7 +304,7 @@ export default function Page() {
         aria-labelledby="hero-heading"
         className="flex h-[100svh] min-h-0 snap-start snap-always flex-col overflow-hidden"
       >
-        <header className="fixed inset-x-0 top-0 z-30 px-4 pt-4 sm:px-5 sm:pt-5 lg:px-8">
+        <header className="fixed inset-x-0 top-0 z-30 px-4 pt-4 sm:px-5 sm:pt-5 xl:px-8">
           <nav
             aria-label="Primary navigation"
             className={cn(
@@ -317,10 +319,8 @@ export default function Page() {
               aria-label="Voxform home"
               translate="no"
               className={cn(
-                "header-brand header-brand-motion shrink-0 flex items-center gap-3",
-                isHeaderCompact
-                  ? "pointer-events-none is-compact"
-                  : ""
+                "header-brand header-brand-motion flex shrink-0 items-center gap-3",
+                isHeaderCompact ? "is-compact xl:pointer-events-none" : ""
               )}
               onClick={(event) => handleMenuClick(event, "#main-content")}
             >
@@ -338,7 +338,7 @@ export default function Page() {
 
             <div
               className={cn(
-                "header-nav hidden flex-1 lg:flex",
+                "header-nav hidden flex-1 xl:flex",
                 isHeaderCompact
                   ? [
                       "header-nav-compact flex-1 justify-center",
@@ -376,9 +376,7 @@ export default function Page() {
               className={cn(
                 buttonVariants({ size: "default" }),
                 "header-cta header-cta-motion ml-auto shrink-0 px-6",
-                isHeaderCompact
-                  ? "pointer-events-none is-compact"
-                  : ""
+                isHeaderCompact ? "is-compact xl:pointer-events-none" : ""
               )}
             >
               Get started
@@ -386,20 +384,24 @@ export default function Page() {
           </nav>
         </header>
 
-        <div className="mx-auto flex min-h-0 w-full max-w-[1440px] flex-1 flex-col px-4 pt-28 pb-6 sm:px-5 sm:pt-30 sm:pb-8 lg:px-8 max-[920px]:pt-24 max-[920px]:pb-4">
-          <div className="grid min-h-0 flex-1 items-center gap-10 lg:grid-cols-[minmax(0,0.84fr)_minmax(31rem,1.16fr)] lg:gap-14 max-[920px]:gap-6 max-md:gap-3">
-            <div className="flex max-w-[39rem] flex-col items-start">
+        <div className="mx-auto flex min-h-0 w-full max-w-[1440px] flex-1 flex-col px-4 pt-24 pb-4 sm:px-5 sm:pt-30 sm:pb-8 xl:px-8 xl:pt-32 xl:pb-8">
+          <div className="grid min-h-0 flex-1 items-center gap-10 max-[920px]:gap-6 max-md:gap-3 lg:grid-cols-[minmax(0,0.84fr)_minmax(31rem,1.16fr)] lg:gap-14">
+            <div className="flex max-w-[39rem] flex-col items-start max-lg:mx-auto max-lg:items-center max-lg:text-center">
               <h1
                 id="hero-heading"
                 className={`screen-shift ${
-                  isHeroVisible ? "screen-shift-visible screen-shift-delay-2" : ""
+                  isHeroVisible
+                    ? "screen-shift-visible screen-shift-delay-2"
+                    : ""
                 } text-[clamp(2.35rem,4.6vw,4.35rem)] leading-[0.94] font-medium tracking-[-0.04em] text-balance`}
               >
                 <RotatingHeroWord />
               </h1>
               <p
-                className={`screen-shift mt-7 max-w-[34rem] text-lg leading-relaxed text-pretty text-muted-foreground max-[920px]:mt-5 max-[920px]:text-base ${
-                  isHeroVisible ? "screen-shift-visible screen-shift-delay-3" : ""
+                className={`screen-shift mt-7 max-w-[34rem] text-lg leading-relaxed text-pretty text-muted-foreground max-[920px]:mt-5 max-[920px]:text-base max-lg:mx-auto ${
+                  isHeroVisible
+                    ? "screen-shift-visible screen-shift-delay-3"
+                    : ""
                 }`}
               >
                 Add your writing once. Create messages, posts, and articles that
@@ -407,8 +409,10 @@ export default function Page() {
               </p>
 
               <div
-                className={`screen-shift mt-9 hidden flex-col gap-3 sm:flex-row max-[920px]:mt-6 md:flex ${
-                  isHeroVisible ? "screen-shift-visible screen-shift-delay-4" : ""
+                className={`screen-shift mt-9 hidden flex-col gap-3 max-[920px]:mt-6 max-lg:justify-center sm:flex-row md:flex ${
+                  isHeroVisible
+                    ? "screen-shift-visible screen-shift-delay-4"
+                    : ""
                 }`}
               >
                 <Link
@@ -419,10 +423,10 @@ export default function Page() {
                 </Link>
                 <a
                   href="#voice-training"
-                  onClick={(event) =>
-                    handleMenuClick(event, "#voice-training")
-                  }
-                  className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
+                  onClick={(event) => handleMenuClick(event, "#voice-training")}
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "lg" })
+                  )}
                 >
                   See how it works
                   <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
@@ -431,7 +435,9 @@ export default function Page() {
 
               <p
                 className={`screen-shift mt-5 hidden text-sm text-muted-foreground max-[920px]:mt-4 md:block ${
-                  isHeroVisible ? "screen-shift-visible screen-shift-delay-5" : ""
+                  isHeroVisible
+                    ? "screen-shift-visible screen-shift-delay-5"
+                    : ""
                 }`}
               >
                 No account needed for your first analysis.

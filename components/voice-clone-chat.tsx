@@ -172,7 +172,7 @@ export function VoiceCloneChat() {
 
   return (
     <section ref={sectionRef} id="ai-clone" aria-labelledby="ai-clone-title" className="flex h-[100svh] min-h-0 snap-start snap-always overflow-hidden bg-transparent">
-      <div className="mx-auto flex h-full min-h-0 w-full max-w-[1440px] flex-col overflow-hidden px-4 pt-24 pb-4 sm:px-5 sm:pt-36 sm:pb-8 lg:px-8 lg:pt-32">
+      <div className="mx-auto flex h-full min-h-0 w-full max-w-[1440px] flex-col overflow-hidden px-4 py-4 sm:px-5 sm:py-7 xl:px-8 xl:pt-32 xl:pb-8">
         <div className="mobile-slide-intro mx-auto max-w-[48rem] shrink-0 text-center">
           <p className={`mobile-slide-kicker screen-shift text-sm font-medium text-muted-foreground ${isVisible ? "screen-shift-visible screen-shift-delay-1" : ""}`}>Talk to Your AI clone</p>
           <h2 id="ai-clone-title" className={`screen-shift mt-2 whitespace-nowrap text-[clamp(1.55rem,4vw,3.75rem)] leading-[0.96] font-medium tracking-[-0.04em] ${isVisible ? "screen-shift-visible screen-shift-delay-2" : ""}`}>AI that sounds like you</h2>
@@ -207,7 +207,7 @@ export function VoiceCloneChat() {
                 <div className="mt-1 grid grid-cols-8 gap-0.5">{emojiGroups[activeEmojiGroup].emoji.map((emoji, index) => <button key={`${emoji}-${index}`} type="button" aria-label={`Add ${emoji}`} onClick={() => addEmoji(emoji)} className="flex aspect-square items-center justify-center rounded-[10px] text-xl transition-[background-color,transform] hover:bg-muted active:scale-90">{emoji}</button>)}</div>
               </div> : null}
               <div className="flex items-end gap-2 rounded-[15px] border border-border/80 bg-background p-2 transition-colors focus-within:border-foreground/45">
-                <input ref={fileInputRef} type="file" className="sr-only" multiple onChange={(event) => handleFiles(event.target.files)} />
+                <input ref={fileInputRef} type="file" className="sr-only" tabIndex={-1} aria-hidden="true" multiple onChange={(event) => handleFiles(event.target.files)} />
                 <Button type="button" variant="ghost" size="icon" aria-label="Attach files" onClick={() => fileInputRef.current?.click()} className="size-10 rounded-[10px] text-muted-foreground hover:text-foreground"><PaperclipIcon aria-hidden="true" /></Button>
                 <Textarea aria-label="Message your AI clone" value={draft} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); sendMessage() } }} placeholder="Write to your clone…" className="min-h-10 max-h-28 resize-none border-0 bg-transparent px-1 py-2 text-sm shadow-none focus-visible:ring-0" rows={1} />
                 <Button type="button" variant="ghost" size="icon" aria-label="Choose emoji" aria-expanded={isEmojiPickerOpen} onClick={() => setIsEmojiPickerOpen((current) => !current)} className={cn("size-10 rounded-[10px] text-muted-foreground hover:text-foreground", isEmojiPickerOpen && "bg-muted text-foreground")}><SmilePlusIcon aria-hidden="true" /></Button>

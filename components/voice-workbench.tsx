@@ -98,7 +98,8 @@ export function VoiceWorkbench({
   const [text, setText] = useState(startEmpty ? "" : sampleText)
   const [status, setStatus] = useState<AnalysisStatus>("idle")
   const [progress, setProgress] = useState(0)
-  const [analysisPhase, setAnalysisPhase] = useState<AnalysisPhase>("indeterminate")
+  const [analysisPhase, setAnalysisPhase] =
+    useState<AnalysisPhase>("indeterminate")
   const [error, setError] = useState("")
   const [fileName, setFileName] = useState("")
   const [voiceSample, setVoiceSample] = useState<VoiceSample | null>(null)
@@ -335,7 +336,7 @@ export function VoiceWorkbench({
           title: "Try the paid workflow",
           description:
             "Free mode supports up to 300 characters. Upgrade for longer samples, Telegram imports, and unlimited drafts.",
-      }
+        }
       : {
           title: "Try the paid workflow",
           description:
@@ -364,381 +365,449 @@ export function VoiceWorkbench({
     <section
       id="voice-workbench"
       aria-labelledby="workbench-title"
-      className={`screen-shift relative z-10 w-full max-w-[64rem] justify-self-end ${
+      className={`screen-shift relative z-10 w-full max-w-[64rem] min-w-0 justify-self-end max-sm:h-full ${
         isVisible ? "screen-shift-visible screen-shift-delay-4" : ""
       }`}
     >
       <div
         data-magnetic-proximity
-        className="relative flex max-h-[calc(100svh-10.5rem)] flex-col overflow-hidden rounded-[14px] bg-card p-8 shadow-[0_20px_60px_rgba(29,30,34,0.07)] sm:max-h-[calc(100svh-11.5rem)] sm:p-10 max-[920px]:max-h-[calc(100svh-8.5rem)] max-[920px]:p-6"
+        className="relative flex max-h-[calc(100svh-10.5rem)] flex-col overflow-hidden rounded-[14px] bg-card p-8 shadow-[0_20px_60px_rgba(29,30,34,0.07)] max-[920px]:max-h-[calc(100svh-8.5rem)] max-[920px]:p-6 max-sm:h-full max-sm:max-h-none max-sm:pb-[6.5rem] sm:max-h-[calc(100svh-11.5rem)] sm:p-10"
       >
-      {isPaywallVisible ? (
-        <div className="absolute inset-0 z-30 flex items-center justify-center bg-white/18 p-8 backdrop-blur-xl">
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="upgrade-title"
-            aria-describedby="upgrade-description"
-            className="w-full max-w-[30rem] text-center"
-          >
-            <div className="mx-auto inline-flex size-12 items-center justify-center rounded-[14px] bg-primary text-primary-foreground">
-              <CrownIcon aria-hidden="true" className="size-5" />
-            </div>
-            <h3
-              id="upgrade-title"
-              className="mt-4 text-[1.35rem] leading-tight font-semibold tracking-[-0.03em]"
+        {isPaywallVisible ? (
+          <div className="absolute inset-0 z-30 flex items-center justify-center bg-white/18 p-8 backdrop-blur-xl">
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="upgrade-title"
+              aria-describedby="upgrade-description"
+              className="w-full max-w-[30rem] text-center"
             >
-              {paywallCopy.title}
-            </h3>
-            <p
-              id="upgrade-description"
-              className="mt-3 text-sm leading-relaxed text-muted-foreground"
-            >
-              {paywallCopy.description}
-            </p>
-            <div className="mt-5 flex flex-col items-center gap-3">
-              <Button type="button" onClick={() => onNavigate?.("#pricing")}>
-                See plans
-                <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
-              </Button>
-              <button
-                type="button"
-                onClick={() => setIsPaywallDismissed(true)}
-                className="text-sm font-medium text-foreground/64 transition-colors duration-160 hover:text-foreground"
+              <div className="mx-auto inline-flex size-12 items-center justify-center rounded-[14px] bg-primary text-primary-foreground">
+                <CrownIcon aria-hidden="true" className="size-5" />
+              </div>
+              <h3
+                id="upgrade-title"
+                className="mt-4 text-[1.35rem] leading-tight font-semibold tracking-[-0.03em]"
               >
-                Keep free mode
-              </button>
+                {paywallCopy.title}
+              </h3>
+              <p
+                id="upgrade-description"
+                className="mt-3 text-sm leading-relaxed text-muted-foreground"
+              >
+                {paywallCopy.description}
+              </p>
+              <div className="mt-5 flex flex-col items-center gap-3">
+                <Button type="button" onClick={() => onNavigate?.("#pricing")}>
+                  See plans
+                  <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => setIsPaywallDismissed(true)}
+                  className="text-sm font-medium text-foreground/64 transition-colors duration-160 hover:text-foreground"
+                >
+                  Keep free mode
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      ) : null}
+        ) : null}
 
-      <div>
         <div>
-          <h2
-            id="workbench-title"
-            className="text-2xl leading-tight font-semibold tracking-[-0.025em]"
-          >
-            Teach AI how you write
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Start with a few paragraphs. You can refine your voice later.
-          </p>
-        </div>
-      </div>
-
-      <Tabs
-        value={sourceTab}
-        onValueChange={(value) => {
-          setSourceTab(value as SourceTab)
-          setError("")
-        }}
-        className="mt-5 min-h-0 flex-1 max-[920px]:mt-4"
-      >
-        <TabsList variant="line" aria-label="Choose a writing source">
-          <TabsTrigger value="paste">Paste text</TabsTrigger>
-          <TabsTrigger value="voice">Voice</TabsTrigger>
-          <TabsTrigger value="upload">Upload file</TabsTrigger>
-          <TabsTrigger value="sources">Other sources</TabsTrigger>
-        </TabsList>
-
-        {shouldShowInputPanel ? (
-          <>
-            <TabsContent
-              value="paste"
-              className="min-h-0 overflow-y-auto pt-4 pr-2 max-[920px]:pt-3"
+          <div>
+            <h2
+              id="workbench-title"
+              className="text-2xl leading-tight font-semibold tracking-[-0.025em]"
             >
-              <FieldGroup>
-                <Field data-invalid={Boolean(error)}>
-                  <FieldLabel htmlFor="writing-samples">
-                    Your writing samples
-                  </FieldLabel>
-                  <Textarea
-                    id="writing-samples"
-                    name="writingSamples"
-                    autoComplete="off"
-                    value={text}
-                    onChange={(event) => {
-                      setText(event.target.value.slice(0, 10000))
-                      setError("")
-                      setStatus("idle")
-                    }}
-                    aria-invalid={Boolean(error)}
-                    aria-describedby={
-                      error ? "writing-error writing-help" : "writing-help"
-                    }
-                    className="h-44 overflow-y-auto resize-none max-[920px]:h-32"
-                  />
-                  <FieldDescription id="writing-help">
-                    Use text you wrote yourself. More variety produces a better
-                    voice profile.
-                  </FieldDescription>
-                  <FieldError id="writing-error">{error}</FieldError>
-                </Field>
-              </FieldGroup>
-            </TabsContent>
-
-            <TabsContent
-              value="voice"
-              className="min-h-0 overflow-y-auto pt-4 pr-2 max-[920px]:pt-3"
-            >
-              <VoiceCapture
-                value={voiceSample}
-                error={sourceTab === "voice" ? error : ""}
-                onChange={handleVoiceSample}
-                onError={setError}
-              />
-            </TabsContent>
-
-            <TabsContent
-              value="upload"
-              className="min-h-0 overflow-y-auto pt-4 pr-2 max-[920px]:pt-3"
-            >
-              <FieldGroup>
-                <Field data-invalid={Boolean(error)}>
-                  <FieldLabel htmlFor="writing-file">
-                    Upload a writing sample
-                  </FieldLabel>
-                  <Input
-                    key={fileInputKey}
-                    id="writing-file"
-                    name="writingFile"
-                    type="file"
-                    accept=".txt,.md,text/plain,text/markdown"
-                    aria-invalid={Boolean(error)}
-                    aria-describedby="file-help"
-                    onChange={(event) => handleFile(event.target.files?.[0])}
-                  />
-                  <FieldDescription id="file-help">
-                    TXT and Markdown files up to 10,000 characters.
-                  </FieldDescription>
-                  {fileName && (
-                    <div className="flex min-w-0 items-center gap-3 text-sm font-medium">
-                      <FileTextIcon aria-hidden="true" />
-                      <span className="min-w-0 break-all">
-                        {fileName} is ready
-                      </span>
-                      <button
-                        type="button"
-                        aria-label="Remove uploaded file"
-                        onClick={clearUploadedFile}
-                        className="inline-flex size-8 shrink-0 items-center justify-center rounded-[10px] border border-border text-muted-foreground transition-colors duration-160 hover:border-foreground hover:text-foreground"
-                      >
-                        <XIcon aria-hidden="true" className="size-4" />
-                      </button>
-                    </div>
-                  )}
-                  <FieldError>{error}</FieldError>
-                </Field>
-              </FieldGroup>
-            </TabsContent>
-
-            <TabsContent
-              value="sources"
-              className="min-h-0 overflow-y-auto pt-4 pr-2 max-[920px]:pt-3"
-            >
-              <FieldGroup>
-                <Field>
-                  <FieldLabel htmlFor="source-url">
-                    Source link or handle
-                  </FieldLabel>
-                  <div className="flex flex-col gap-3 sm:flex-row">
-                    <Input
-                      id="source-url"
-                      name="sourceUrl"
-                      value={sourceUrl}
-                      onChange={(event) => {
-                        setSourceUrl(event.target.value)
-                        setError("")
-                      }}
-                      placeholder="https://your-site.com/article or @telegram_export"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={openFromUrl}
-                    >
-                      Use sample import
-                    </Button>
-                  </div>
-                  <FieldDescription>
-                    For now this loads a realistic sample flow for URL,
-                    Telegram, or docs-based imports.
-                  </FieldDescription>
-                </Field>
-              </FieldGroup>
-
-              <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                {[
-                  {
-                    key: "url",
-                    title: "Public writing URL",
-                    description:
-                      "Import published posts and keep the same tone in new drafts.",
-                    icon: LinkIcon,
-                  },
-                  {
-                    key: "telegram",
-                    title: "Telegram chats",
-                    description:
-                      "Load chat exports and learn your real conversational rhythm.",
-                    icon: SendIcon,
-                  },
-                  {
-                    key: "docs",
-                    title: "Docs and workspaces",
-                    description:
-                      "Bring in notes, docs, and internal writing for deeper voice coverage.",
-                    icon: UploadIcon,
-                  },
-                ].map(({ key, title, description, icon: Icon }) => {
-                  const isActive = selectedSource === key
-
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() =>
-                        loadSourceSample(key as keyof typeof sourceSamples)
-                      }
-                      className={`flex min-h-36 flex-col rounded-xl border bg-background p-4 text-left transition-[transform,border-color,box-shadow] duration-160 ease-[cubic-bezier(0.23,1,0.32,1)] hover:-translate-y-0.5 ${
-                        isActive
-                          ? "border-foreground shadow-[0_16px_32px_rgba(29,30,34,0.06)]"
-                          : "border-border"
-                      }`}
-                    >
-                      <Icon aria-hidden="true" className="size-5" />
-                      <p className="mt-4 font-medium">{title}</p>
-                      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                        {description}
-                      </p>
-                    </button>
-                  )
-                })}
-              </div>
-            </TabsContent>
-          </>
-        ) : (
-          <div className="min-h-0 overflow-y-auto pt-4 pr-2 max-[920px]:pt-3">
-            <button
-              type="button"
-              onClick={() => setShowInputPanel(true)}
-              className="flex w-full items-center justify-between rounded-xl border border-border bg-background px-4 py-3 text-left transition-colors duration-160 hover:bg-muted/40"
-            >
-              <div>
-                <p className="text-sm font-medium">
-                  {sourceTab === "voice"
-                    ? "Voice sample hidden"
-                    : "Writing samples hidden"}
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {sourceTab === "voice"
-                    ? "Open the recording again to review or replace it."
-                    : "Open your source text again and the result panel will collapse."}
-                </p>
-              </div>
-              <span className="text-sm font-medium text-foreground">
-                {sourceTab === "voice" ? "Open recording" : "Open samples"}
-              </span>
-            </button>
+              Teach AI how you write
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Start with a few paragraphs. You can refine your voice later.
+            </p>
           </div>
-        )}
-      </Tabs>
+        </div>
 
-      <div className="mt-5 shrink-0 border-t border-border pt-4 max-[920px]:mt-4 max-[920px]:pt-3">
-        {status === "analyzing" ? (
-          <Progress
-            value={analysisPhase === "indeterminate" ? null : progress}
-            aria-label="Voice analysis progress"
-            className="gap-4"
-          >
-            <ProgressLabel>
-              {sourceTab === "voice"
-                ? "Finding patterns in your voice…"
-                : "Finding patterns in your writing…"}
-            </ProgressLabel>
-            <ProgressTrack>
-              <ProgressIndicator />
-              {analysisPhase === "determinate" ? (
-                <ProgressValue>
-                  {(_formattedValue, value) => `${value ?? 0}%`}
-                </ProgressValue>
-              ) : (
-                <span className="absolute inset-y-0 right-3 z-10 inline-flex items-center text-[0.72rem] font-medium text-white/82">
-                  analyzing
-                </span>
-              )}
-            </ProgressTrack>
-          </Progress>
-        ) : canShowResult ? (
-          <div
-            ref={resultRef}
-            tabIndex={-1}
-            role="status"
-            aria-live="polite"
-            className="result-enter rounded-xl bg-primary p-6 text-primary-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:p-7"
-          >
-            {isNamingVoice ? (
-              <form onSubmit={saveVoiceToLibrary} className="max-w-xl">
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <CheckIcon aria-hidden="true" />
-                  Voice profile ready
-                </div>
-                <h3 className="mt-3 text-xl font-medium tracking-[-0.035em] sm:text-2xl">
-                  Name your voice
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-primary-foreground/68">
-                  This is how it will appear in your library and drafting workspace.
-                </p>
-                <FieldGroup className="mt-5">
-                  <Field data-invalid={Boolean(voiceNameError)}>
-                    <FieldLabel className="text-primary-foreground" htmlFor="voice-profile-name">
-                      Voice name
+        <Tabs
+          value={sourceTab}
+          onValueChange={(value) => {
+            setSourceTab(value as SourceTab)
+            setError("")
+          }}
+          className="mt-5 min-h-0 flex-1 max-[920px]:mt-4"
+        >
+          <TabsList variant="line" aria-label="Choose a writing source">
+            <TabsTrigger value="paste">Paste text</TabsTrigger>
+            <TabsTrigger value="voice">Voice</TabsTrigger>
+            <TabsTrigger value="upload">Upload file</TabsTrigger>
+            <TabsTrigger value="sources">Other sources</TabsTrigger>
+          </TabsList>
+
+          {shouldShowInputPanel ? (
+            <>
+              <TabsContent
+                value="paste"
+                className="min-h-0 overflow-y-auto pt-4 pr-2 max-[920px]:pt-3"
+              >
+                <FieldGroup>
+                  <Field data-invalid={Boolean(error)}>
+                    <FieldLabel htmlFor="writing-samples">
+                      Your writing samples
                     </FieldLabel>
-                    <Input
-                      ref={voiceNameInputRef}
-                      id="voice-profile-name"
-                      value={voiceName}
+                    <Textarea
+                      id="writing-samples"
+                      name="writingSamples"
+                      autoComplete="off"
+                      value={text}
                       onChange={(event) => {
-                        setVoiceName(event.target.value)
-                        setVoiceNameError("")
+                        setText(event.target.value.slice(0, 10000))
+                        setError("")
+                        setStatus("idle")
                       }}
-                      aria-invalid={Boolean(voiceNameError)}
-                      aria-describedby={voiceNameError ? "voice-name-error" : undefined}
-                      placeholder="e.g. Founder voice"
-                      className="border-white/24 bg-white text-foreground placeholder:text-muted-foreground"
+                      aria-invalid={Boolean(error)}
+                      aria-describedby={
+                        error ? "writing-error writing-help" : "writing-help"
+                      }
+                      className="h-44 resize-none overflow-y-auto max-[920px]:h-32 max-sm:h-[clamp(9rem,26svh,13rem)] max-sm:text-[0.9375rem]"
                     />
-                    {voiceNameError ? (
-                      <FieldError id="voice-name-error" className="text-primary-foreground">
-                        {voiceNameError}
-                      </FieldError>
-                    ) : null}
+                    <FieldDescription id="writing-help">
+                      Use text you wrote yourself. More variety produces a
+                      better voice profile.
+                    </FieldDescription>
+                    <FieldError id="writing-error">{error}</FieldError>
                   </Field>
                 </FieldGroup>
-                <div className="mt-5 flex flex-wrap gap-2">
-                  <Button type="submit" variant="outline">
-                    Add to library
+              </TabsContent>
+
+              <TabsContent
+                value="voice"
+                className="min-h-0 overflow-y-auto pt-4 pr-2 max-[920px]:pt-3"
+              >
+                <VoiceCapture
+                  value={voiceSample}
+                  error={sourceTab === "voice" ? error : ""}
+                  onChange={handleVoiceSample}
+                  onError={setError}
+                />
+              </TabsContent>
+
+              <TabsContent
+                value="upload"
+                className="min-h-0 overflow-y-auto pt-4 pr-2 max-[920px]:pt-3"
+              >
+                <FieldGroup>
+                  <Field data-invalid={Boolean(error)}>
+                    <FieldLabel htmlFor="writing-file">
+                      Upload a writing sample
+                    </FieldLabel>
+                    <Input
+                      key={fileInputKey}
+                      id="writing-file"
+                      name="writingFile"
+                      type="file"
+                      accept=".txt,.md,text/plain,text/markdown"
+                      aria-invalid={Boolean(error)}
+                      aria-describedby="file-help"
+                      onChange={(event) => handleFile(event.target.files?.[0])}
+                    />
+                    <FieldDescription id="file-help">
+                      TXT and Markdown files up to 10,000 characters.
+                    </FieldDescription>
+                    {fileName && (
+                      <div className="flex min-w-0 items-center gap-3 text-sm font-medium">
+                        <FileTextIcon aria-hidden="true" />
+                        <span className="min-w-0 break-all">
+                          {fileName} is ready
+                        </span>
+                        <button
+                          type="button"
+                          aria-label="Remove uploaded file"
+                          onClick={clearUploadedFile}
+                          className="inline-flex size-8 shrink-0 items-center justify-center rounded-[10px] border border-border text-muted-foreground transition-colors duration-160 hover:border-foreground hover:text-foreground"
+                        >
+                          <XIcon aria-hidden="true" className="size-4" />
+                        </button>
+                      </div>
+                    )}
+                    <FieldError>{error}</FieldError>
+                  </Field>
+                </FieldGroup>
+              </TabsContent>
+
+              <TabsContent
+                value="sources"
+                className="min-h-0 overflow-y-auto pt-4 pr-2 max-[920px]:pt-3"
+              >
+                <FieldGroup>
+                  <Field>
+                    <FieldLabel htmlFor="source-url">
+                      Source link or handle
+                    </FieldLabel>
+                    <div className="flex flex-col gap-3 sm:flex-row">
+                      <Input
+                        id="source-url"
+                        name="sourceUrl"
+                        value={sourceUrl}
+                        onChange={(event) => {
+                          setSourceUrl(event.target.value)
+                          setError("")
+                        }}
+                        placeholder="https://your-site.com/article or @telegram_export"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={openFromUrl}
+                      >
+                        Use sample import
+                      </Button>
+                    </div>
+                    <FieldDescription>
+                      For now this loads a realistic sample flow for URL,
+                      Telegram, or docs-based imports.
+                    </FieldDescription>
+                  </Field>
+                </FieldGroup>
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                  {[
+                    {
+                      key: "url",
+                      title: "Public writing URL",
+                      description:
+                        "Import published posts and keep the same tone in new drafts.",
+                      icon: LinkIcon,
+                    },
+                    {
+                      key: "telegram",
+                      title: "Telegram chats",
+                      description:
+                        "Load chat exports and learn your real conversational rhythm.",
+                      icon: SendIcon,
+                    },
+                    {
+                      key: "docs",
+                      title: "Docs and workspaces",
+                      description:
+                        "Bring in notes, docs, and internal writing for deeper voice coverage.",
+                      icon: UploadIcon,
+                    },
+                  ].map(({ key, title, description, icon: Icon }) => {
+                    const isActive = selectedSource === key
+
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() =>
+                          loadSourceSample(key as keyof typeof sourceSamples)
+                        }
+                        className={`flex min-h-36 flex-col rounded-xl border bg-background p-4 text-left transition-[transform,border-color,box-shadow] duration-160 ease-[cubic-bezier(0.23,1,0.32,1)] hover:-translate-y-0.5 ${
+                          isActive
+                            ? "border-foreground shadow-[0_16px_32px_rgba(29,30,34,0.06)]"
+                            : "border-border"
+                        }`}
+                      >
+                        <Icon aria-hidden="true" className="size-5" />
+                        <p className="mt-4 font-medium">{title}</p>
+                        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                          {description}
+                        </p>
+                      </button>
+                    )
+                  })}
+                </div>
+              </TabsContent>
+            </>
+          ) : (
+            <div className="min-h-0 overflow-y-auto pt-4 pr-2 max-[920px]:pt-3">
+              <button
+                type="button"
+                onClick={() => setShowInputPanel(true)}
+                className="flex w-full items-center justify-between rounded-xl border border-border bg-background px-4 py-3 text-left transition-colors duration-160 hover:bg-muted/40"
+              >
+                <div>
+                  <p className="text-sm font-medium">
+                    {sourceTab === "voice"
+                      ? "Voice sample hidden"
+                      : "Writing samples hidden"}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {sourceTab === "voice"
+                      ? "Open the recording again to review or replace it."
+                      : "Open your source text again and the result panel will collapse."}
+                  </p>
+                </div>
+                <span className="text-sm font-medium text-foreground">
+                  {sourceTab === "voice" ? "Open recording" : "Open samples"}
+                </span>
+              </button>
+            </div>
+          )}
+        </Tabs>
+
+        <div
+          className={cn(
+            "mt-5 shrink-0 border-t border-border pt-4 max-[920px]:mt-4 max-[920px]:pt-3",
+            status === "idle" && !canShowCollapsedInput
+              ? "max-sm:absolute max-sm:inset-x-6 max-sm:bottom-[max(1.5rem,env(safe-area-inset-bottom))] max-sm:mt-0 max-sm:border-t-0 max-sm:pt-0"
+              : ""
+          )}
+        >
+          {status === "analyzing" ? (
+            <Progress
+              value={analysisPhase === "indeterminate" ? null : progress}
+              aria-label="Voice analysis progress"
+              className="gap-4"
+            >
+              <ProgressLabel>
+                {sourceTab === "voice"
+                  ? "Finding patterns in your voice…"
+                  : "Finding patterns in your writing…"}
+              </ProgressLabel>
+              <ProgressTrack>
+                <ProgressIndicator />
+                {analysisPhase === "determinate" ? (
+                  <ProgressValue>
+                    {(_formattedValue, value) => `${value ?? 0}%`}
+                  </ProgressValue>
+                ) : (
+                  <span className="absolute inset-y-0 right-3 z-10 inline-flex items-center text-[0.72rem] font-medium text-white/82">
+                    analyzing
+                  </span>
+                )}
+              </ProgressTrack>
+            </Progress>
+          ) : canShowResult ? (
+            <div
+              ref={resultRef}
+              tabIndex={-1}
+              role="status"
+              aria-live="polite"
+              className="result-enter rounded-xl bg-primary p-6 text-primary-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:p-7"
+            >
+              {isNamingVoice ? (
+                <form onSubmit={saveVoiceToLibrary} className="max-w-xl">
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <CheckIcon aria-hidden="true" />
+                    Voice profile ready
+                  </div>
+                  <h3 className="mt-3 text-xl font-medium tracking-[-0.035em] sm:text-2xl">
+                    Name your voice
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-primary-foreground/68">
+                    This is how it will appear in your library and drafting
+                    workspace.
+                  </p>
+                  <FieldGroup className="mt-5">
+                    <Field data-invalid={Boolean(voiceNameError)}>
+                      <FieldLabel
+                        className="text-primary-foreground"
+                        htmlFor="voice-profile-name"
+                      >
+                        Voice name
+                      </FieldLabel>
+                      <Input
+                        ref={voiceNameInputRef}
+                        id="voice-profile-name"
+                        value={voiceName}
+                        onChange={(event) => {
+                          setVoiceName(event.target.value)
+                          setVoiceNameError("")
+                        }}
+                        aria-invalid={Boolean(voiceNameError)}
+                        aria-describedby={
+                          voiceNameError ? "voice-name-error" : undefined
+                        }
+                        placeholder="e.g. Founder voice"
+                        className="border-white/24 bg-white text-foreground placeholder:text-muted-foreground"
+                      />
+                      {voiceNameError ? (
+                        <FieldError
+                          id="voice-name-error"
+                          className="text-primary-foreground"
+                        >
+                          {voiceNameError}
+                        </FieldError>
+                      ) : null}
+                    </Field>
+                  </FieldGroup>
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    <Button type="submit" variant="outline">
+                      Add to library
+                      <ArrowRightIcon
+                        data-icon="inline-end"
+                        aria-hidden="true"
+                      />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="text-primary-foreground hover:bg-white/10 hover:text-primary-foreground"
+                      onClick={() => setIsNamingVoice(false)}
+                    >
+                      Back
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                      <CheckIcon aria-hidden="true" />
+                      Your voice profile is ready
+                    </div>
+                    <h3 className="mt-3 text-xl font-medium tracking-[-0.035em] sm:text-2xl">
+                      {sourceTab === "voice"
+                        ? "We saved the tone, pacing, and delivery from your voice."
+                        : "We saved the rhythm, tone, and vocabulary from your writing."}
+                    </h3>
+                    <p className="mt-2 max-w-xl text-sm leading-relaxed text-primary-foreground/68">
+                      We saved a reusable baseline for every new draft and
+                      conversation.
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="shrink-0"
+                    onClick={() => {
+                      if (onVoiceReady) {
+                        startNamingVoice()
+                        return
+                      }
+                      onNavigate?.("#ai-clone")
+                    }}
+                  >
+                    {onVoiceReady ? "Add to library" : "Try it now"}
                     <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
                   </Button>
-                  <Button type="button" variant="ghost" className="text-primary-foreground hover:bg-white/10 hover:text-primary-foreground" onClick={() => setIsNamingVoice(false)}>
-                    Back
-                  </Button>
                 </div>
-              </form>
-            ) : (
+              )}
+            </div>
+          ) : canShowFailure && voiceAnalysisFailure ? (
+            <div
+              ref={resultRef}
+              tabIndex={-1}
+              role="alert"
+              aria-live="assertive"
+              className="result-enter rounded-xl bg-primary p-6 text-primary-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:p-7"
+            >
               <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <div className="flex items-center gap-2 text-sm font-medium">
-                    <CheckIcon aria-hidden="true" />
-                    Your voice profile is ready
+                    <TriangleAlertIcon aria-hidden="true" />
+                    We couldn’t analyze this recording
                   </div>
                   <h3 className="mt-3 text-xl font-medium tracking-[-0.035em] sm:text-2xl">
-                    {sourceTab === "voice"
-                      ? "We saved the tone, pacing, and delivery from your voice."
-                      : "We saved the rhythm, tone, and vocabulary from your writing."}
+                    {voiceAnalysisFailure === "too_short"
+                      ? "We need a longer voice sample."
+                      : "We couldn’t hear your voice clearly enough."}
                   </h3>
-                  <p className="mt-2 max-w-xl text-sm leading-relaxed text-primary-foreground/68">
-                    We saved a reusable baseline for every new draft and conversation.
+                  <p className="mt-2 max-w-2xl text-sm leading-relaxed text-primary-foreground/68">
+                    {voiceAnalysisFailure === "too_short"
+                      ? "This recording is under 20 seconds. Record 20–60 seconds with a few complete sentences."
+                      : "The audio is too quiet or unclear. Move closer to the microphone and reduce background noise."}
                   </p>
                 </div>
                 <Button
@@ -746,98 +815,62 @@ export function VoiceWorkbench({
                   variant="outline"
                   className="shrink-0"
                   onClick={() => {
-                    if (onVoiceReady) {
-                      startNamingVoice()
-                      return
-                    }
-                    onNavigate?.("#ai-clone")
+                    handleVoiceSample(null)
+                    setSourceTab("voice")
+                    setShowInputPanel(true)
                   }}
                 >
-                  {onVoiceReady ? "Add to library" : "Try it now"}
-                  <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
+                  <RotateCcwIcon data-icon="inline-start" aria-hidden="true" />
+                  Try another sample
                 </Button>
               </div>
-            )}
-          </div>
-        ) : canShowFailure && voiceAnalysisFailure ? (
-          <div
-            ref={resultRef}
-            tabIndex={-1}
-            role="alert"
-            aria-live="assertive"
-            className="result-enter rounded-xl bg-primary p-6 text-primary-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:p-7"
-          >
-            <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <TriangleAlertIcon aria-hidden="true" />
-                  We couldn’t analyze this recording
-                </div>
-                <h3 className="mt-3 text-xl font-medium tracking-[-0.035em] sm:text-2xl">
-                  {voiceAnalysisFailure === "too_short"
-                    ? "We need a longer voice sample."
-                    : "We couldn’t hear your voice clearly enough."}
-                </h3>
-                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-primary-foreground/68">
-                  {voiceAnalysisFailure === "too_short"
-                    ? "This recording is under 20 seconds. Record 20–60 seconds with a few complete sentences."
-                    : "The audio is too quiet or unclear. Move closer to the microphone and reduce background noise."}
-                </p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-2.5 text-sm text-muted-foreground max-sm:hidden">
+                <LockKeyholeIcon aria-hidden="true" />
+                <span>
+                  {sourceTab === "voice"
+                    ? "Your voice sample stays private and can be deleted anytime."
+                    : "Your text stays private and can be deleted anytime."}
+                </span>
               </div>
-              <Button
-                type="button"
-                variant="outline"
-                className="shrink-0"
-                onClick={() => {
-                  handleVoiceSample(null)
-                  setSourceTab("voice")
-                  setShowInputPanel(true)
-                }}
-              >
-                <RotateCcwIcon data-icon="inline-start" aria-hidden="true" />
-                Try another sample
-              </Button>
+              <div className="flex items-center justify-between gap-5 max-sm:w-full sm:justify-end">
+                <span className="text-sm text-muted-foreground tabular-nums max-sm:hidden">
+                  {sourceTab === "voice"
+                    ? voiceSample?.duration
+                      ? `${Math.floor(voiceSample.duration / 60)}:${(
+                          voiceSample.duration % 60
+                        )
+                          .toString()
+                          .padStart(2, "0")}`
+                      : voiceSample
+                        ? "Audio ready"
+                        : "No audio"
+                    : `${text.length.toLocaleString()} / 10,000`}
+                </span>
+                {canShowCollapsedInput ? (
+                  <Button
+                    type="button"
+                    onClick={() => setShowInputPanel(false)}
+                  >
+                    Back to result
+                    <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    onClick={analyzeVoice}
+                    className="max-sm:h-14 max-sm:w-full max-sm:text-base"
+                  >
+                    Analyze my voice
+                    <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-start gap-2.5 text-sm text-muted-foreground">
-              <LockKeyholeIcon aria-hidden="true" />
-              <span>
-                {sourceTab === "voice"
-                  ? "Your voice sample stays private and can be deleted anytime."
-                  : "Your text stays private and can be deleted anytime."}
-              </span>
-            </div>
-            <div className="flex items-center justify-between gap-5 sm:justify-end">
-              <span className="text-sm text-muted-foreground tabular-nums">
-                {sourceTab === "voice"
-                  ? voiceSample?.duration
-                    ? `${Math.floor(voiceSample.duration / 60)}:${(
-                        voiceSample.duration % 60
-                      )
-                        .toString()
-                        .padStart(2, "0")}`
-                    : voiceSample
-                      ? "Audio ready"
-                      : "No audio"
-                  : `${text.length.toLocaleString()} / 10,000`}
-              </span>
-              {canShowCollapsedInput ? (
-                <Button type="button" onClick={() => setShowInputPanel(false)}>
-                  Back to result
-                  <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
-                </Button>
-              ) : (
-                <Button type="button" onClick={analyzeVoice}>
-                  Analyze my voice
-                  <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
-                </Button>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
       </div>
     </section>
   )
@@ -853,7 +886,9 @@ export function WritingModes() {
   const sectionRef = useRef<HTMLElement>(null)
 
   const rewrittenText = (() => {
-    const source = beforeText.trim() || "Add a message, document, or email to rewrite it in your voice."
+    const source =
+      beforeText.trim() ||
+      "Add a message, document, or email to rewrite it in your voice."
 
     switch (outputKind) {
       case "message":
@@ -892,10 +927,10 @@ export function WritingModes() {
       aria-labelledby="modes-title"
       className="flex h-[100svh] min-h-0 snap-start snap-always items-stretch overflow-hidden bg-background"
     >
-      <div className="mx-auto h-full min-h-0 w-full max-w-[1440px] px-4 pt-24 pb-4 sm:px-5 sm:pt-40 sm:pb-14 lg:px-8 lg:py-28">
+      <div className="mx-auto h-full min-h-0 w-full max-w-[1440px] px-4 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-10 xl:py-28">
         <div className="relative flex h-full min-h-0 flex-col">
-          <div className="grid min-h-0 flex-1 items-center gap-6 lg:grid-cols-[minmax(19rem,0.78fr)_minmax(0,1.22fr)] lg:gap-14">
-            <div className="hidden h-full items-center lg:flex">
+          <div className="grid min-h-0 flex-1 items-center gap-6 xl:grid-cols-[minmax(19rem,0.78fr)_minmax(0,1.22fr)] xl:gap-14">
+            <div className="hidden h-full items-center xl:flex">
               <div
                 className={`screen-shift ${
                   isVisible ? "screen-shift-visible screen-shift-delay-1" : ""
@@ -926,116 +961,144 @@ export function WritingModes() {
             >
               <div
                 data-magnetic-proximity
-                className="rounded-2xl bg-white/82 p-6 shadow-[0_24px_70px_rgba(29,30,34,0.06)] sm:p-8"
+                className="rounded-2xl bg-white/82 p-4 shadow-[0_24px_70px_rgba(29,30,34,0.06)] sm:p-6 lg:p-7 xl:p-8"
               >
-              <div className="flex min-h-0 flex-col gap-4 sm:gap-6">
-                <div className="flex flex-col">
-                  <p
-                    className={`screen-shift hidden text-sm font-medium text-muted-foreground sm:block ${
-                      isVisible ? "screen-shift-visible screen-shift-delay-3" : ""
-                    }`}
-                  >
-                    Adaptive modes
-                  </p>
-                  <p
-                    className={`screen-shift max-w-[22ch] text-[clamp(1.8rem,3.1vw,3rem)] leading-[1.02] font-medium tracking-[-0.04em] text-balance sm:mt-2 sm:text-[clamp(2rem,3.1vw,3rem)] ${
-                      isVisible ? "screen-shift-visible screen-shift-delay-4" : ""
-                    }`}
-                  >
-                    Rewrite without losing your baseline voice.
-                  </p>
-                </div>
+                <div className="flex min-h-0 flex-col gap-4 sm:gap-6">
+                  <div className="flex flex-col">
+                    <p
+                      className={`screen-shift hidden text-sm font-medium text-muted-foreground sm:block ${
+                        isVisible
+                          ? "screen-shift-visible screen-shift-delay-3"
+                          : ""
+                      }`}
+                    >
+                      Adaptive modes
+                    </p>
+                    <p
+                      className={`screen-shift max-w-[22ch] text-[clamp(1.8rem,3.1vw,3rem)] leading-[1.02] font-medium tracking-[-0.04em] text-balance sm:mt-2 sm:text-[clamp(2rem,3.1vw,3rem)] ${
+                        isVisible
+                          ? "screen-shift-visible screen-shift-delay-4"
+                          : ""
+                      }`}
+                    >
+                      Rewrite without losing your baseline voice.
+                    </p>
+                  </div>
 
-                <div className="grid min-h-0 grid-cols-[minmax(0,1fr)_1rem_minmax(0,1fr)] items-center gap-2 sm:gap-4 lg:grid-cols-[minmax(0,0.94fr)_2rem_minmax(0,1.06fr)] lg:items-center">
-                  <article className="screen-shift screen-shift-visible screen-shift-delay-1 flex h-[min(14rem,calc(100svh-21rem))] min-h-0 flex-col rounded-2xl bg-background p-4 sm:h-[23rem] sm:p-6">
-                    <p className="text-sm font-medium">Before</p>
-                    <Textarea
-                      aria-label="Text to rewrite"
-                      value={beforeText}
-                      onChange={(event) => setBeforeText(event.target.value)}
-                      className="mt-3 min-h-0 flex-1 resize-none border-0 bg-transparent p-0 text-sm leading-relaxed text-muted-foreground shadow-none focus-visible:ring-0 sm:mt-4 sm:text-base"
+                  <div className="grid min-h-0 grid-cols-1 items-center gap-2 sm:gap-3 lg:grid-cols-[minmax(0,0.94fr)_2rem_minmax(0,1.06fr)] lg:gap-4">
+                    <article className="screen-shift screen-shift-visible screen-shift-delay-1 flex h-44 min-h-0 flex-col rounded-2xl bg-background p-4 sm:h-56 sm:p-5 lg:h-[22rem] lg:p-6">
+                      <p className="text-sm font-medium">Before</p>
+                      <Textarea
+                        aria-label="Text to rewrite"
+                        value={beforeText}
+                        onChange={(event) => setBeforeText(event.target.value)}
+                        className="mt-3 min-h-0 flex-1 resize-none border-0 bg-transparent p-0 text-sm leading-relaxed text-muted-foreground shadow-none focus-visible:ring-0 sm:mt-4 sm:text-base"
+                      />
+                    </article>
+
+                    <ArrowRightIcon
+                      aria-hidden="true"
+                      className="screen-shift screen-shift-visible screen-shift-delay-2 mx-auto size-4 rotate-90 lg:size-5 lg:rotate-0"
                     />
-                  </article>
 
-                  <ArrowRightIcon
-                    aria-hidden="true"
-                    className="screen-shift screen-shift-visible screen-shift-delay-2 mx-auto size-4 lg:size-5"
-                  />
-
-                  <article className="screen-shift screen-shift-visible screen-shift-delay-3 flex h-[min(14rem,calc(100svh-21rem))] min-h-0 flex-col rounded-2xl bg-primary p-4 text-primary-foreground sm:h-[23rem] sm:p-6">
-                    <div className="flex items-center justify-between gap-4">
-                      <p className="text-sm font-medium text-primary-foreground/72">In your voice</p>
-                      <div
-                        className="relative"
-                        onBlur={(event) => {
-                          if (!event.currentTarget.contains(event.relatedTarget)) {
-                            setIsOutputMenuOpen(false)
-                          }
-                        }}
-                      >
-                        <button
-                          type="button"
-                          aria-haspopup="listbox"
-                          aria-expanded={isOutputMenuOpen}
-                          onClick={() => setIsOutputMenuOpen((current) => !current)}
-                          className="inline-flex h-9 items-center gap-2 rounded-[10px] border border-white/22 bg-white/8 px-3 text-sm font-medium text-primary-foreground transition-[transform,border-color,background-color] duration-160 hover:border-white/42 hover:bg-white/12 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                    <article className="screen-shift screen-shift-visible screen-shift-delay-3 flex h-44 min-h-0 flex-col rounded-2xl bg-primary p-4 text-primary-foreground sm:h-56 sm:p-5 lg:h-[22rem] lg:p-6">
+                      <div className="flex items-center justify-between gap-4">
+                        <p className="text-sm font-medium text-primary-foreground/72">
+                          In your voice
+                        </p>
+                        <div
+                          className="relative"
+                          onBlur={(event) => {
+                            if (
+                              !event.currentTarget.contains(event.relatedTarget)
+                            ) {
+                              setIsOutputMenuOpen(false)
+                            }
+                          }}
                         >
-                          {draftOptions.find((option) => option.value === outputKind)?.label}
-                          <ChevronDownIcon
-                            aria-hidden="true"
-                            className={cn(
-                              "size-4 text-primary-foreground/70 transition-transform duration-160",
-                              isOutputMenuOpen ? "rotate-180" : ""
-                            )}
-                          />
-                        </button>
-
-                        {isOutputMenuOpen ? (
-                          <div
-                            role="listbox"
-                            aria-label="Output format"
-                            className="absolute top-11 right-0 z-10 w-44 rounded-xl bg-white p-1 text-foreground shadow-[0_8px_18px_rgba(29,30,34,0.18)]"
+                          <button
+                            type="button"
+                            aria-haspopup="listbox"
+                            aria-expanded={isOutputMenuOpen}
+                            onClick={() =>
+                              setIsOutputMenuOpen((current) => !current)
+                            }
+                            className="inline-flex h-9 items-center gap-2 rounded-[10px] border border-white/22 bg-white/8 px-3 text-sm font-medium text-primary-foreground transition-[transform,border-color,background-color] duration-160 hover:border-white/42 hover:bg-white/12 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-[0.97]"
                           >
-                            {draftOptions.map(({ value, label, icon: Icon }) => (
-                              <button
-                                key={value}
-                                type="button"
-                                role="option"
-                                aria-selected={outputKind === value}
-                                onClick={() => {
-                                  setOutputKind(value)
-                                  setIsOutputMenuOpen(false)
-                                }}
-                                className={cn(
-                                  "flex w-full items-center gap-2 rounded-[9px] px-3 py-2 text-left text-sm font-medium transition-colors duration-160",
-                                  outputKind === value
-                                    ? "bg-primary text-primary-foreground"
-                                    : "text-foreground/72 hover:bg-muted hover:text-foreground"
-                                )}
-                              >
-                                <Icon aria-hidden="true" className="size-4" strokeWidth={1.5} />
-                                {label}
-                              </button>
-                            ))}
-                          </div>
-                        ) : null}
-                      </div>
-                    </div>
-                    <p className="mt-3 min-h-0 flex-1 overflow-y-auto whitespace-pre-wrap pr-1 text-sm leading-relaxed text-primary-foreground/92 sm:mt-5 sm:text-base">{rewrittenText}</p>
-                  </article>
-                </div>
+                            {
+                              draftOptions.find(
+                                (option) => option.value === outputKind
+                              )?.label
+                            }
+                            <ChevronDownIcon
+                              aria-hidden="true"
+                              className={cn(
+                                "size-4 text-primary-foreground/70 transition-transform duration-160",
+                                isOutputMenuOpen ? "rotate-180" : ""
+                              )}
+                            />
+                          </button>
 
-                <div className="hidden flex-wrap items-center gap-x-5 gap-y-2 border-t border-border pt-4 text-sm text-muted-foreground sm:flex">
-                  <span className="inline-flex items-center gap-2">
-                    <Clock3Icon aria-hidden="true" className="size-4 text-foreground" />
-                    Your rhythm stays intact
-                  </span>
-                  <span className="inline-flex items-center gap-2">
-                    <LinkIcon aria-hidden="true" className="size-4 text-foreground" />
-                    Paste text, files, or docs
-                  </span>
+                          {isOutputMenuOpen ? (
+                            <div
+                              role="listbox"
+                              aria-label="Output format"
+                              className="absolute top-11 right-0 z-10 w-44 rounded-xl bg-white p-1 text-foreground shadow-[0_8px_18px_rgba(29,30,34,0.18)]"
+                            >
+                              {draftOptions.map(
+                                ({ value, label, icon: Icon }) => (
+                                  <button
+                                    key={value}
+                                    type="button"
+                                    role="option"
+                                    aria-selected={outputKind === value}
+                                    onClick={() => {
+                                      setOutputKind(value)
+                                      setIsOutputMenuOpen(false)
+                                    }}
+                                    className={cn(
+                                      "flex w-full items-center gap-2 rounded-[9px] px-3 py-2 text-left text-sm font-medium transition-colors duration-160",
+                                      outputKind === value
+                                        ? "bg-primary text-primary-foreground"
+                                        : "text-foreground/72 hover:bg-muted hover:text-foreground"
+                                    )}
+                                  >
+                                    <Icon
+                                      aria-hidden="true"
+                                      className="size-4"
+                                      strokeWidth={1.5}
+                                    />
+                                    {label}
+                                  </button>
+                                )
+                              )}
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
+                      <p className="mt-3 min-h-0 flex-1 overflow-y-auto pr-1 text-sm leading-relaxed whitespace-pre-wrap text-primary-foreground/92 sm:mt-5 sm:text-base">
+                        {rewrittenText}
+                      </p>
+                    </article>
+                  </div>
+
+                  <div className="hidden flex-wrap items-center gap-x-5 gap-y-2 border-t border-border pt-4 text-sm text-muted-foreground lg:flex">
+                    <span className="inline-flex items-center gap-2">
+                      <Clock3Icon
+                        aria-hidden="true"
+                        className="size-4 text-foreground"
+                      />
+                      Your rhythm stays intact
+                    </span>
+                    <span className="inline-flex items-center gap-2">
+                      <LinkIcon
+                        aria-hidden="true"
+                        className="size-4 text-foreground"
+                      />
+                      Paste text, files, or docs
+                    </span>
+                  </div>
                 </div>
-              </div>
               </div>
             </div>
           </div>
