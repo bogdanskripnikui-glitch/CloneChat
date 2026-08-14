@@ -145,7 +145,7 @@ export function PricingSection({
       aria-labelledby="pricing-title"
       className="flex h-[100svh] min-h-0 snap-start snap-always items-stretch overflow-hidden bg-transparent"
     >
-      <div className="mx-auto flex h-full min-h-0 w-full max-w-[1440px] flex-col justify-start px-4 pt-28 pb-4 sm:px-5 sm:pt-30 sm:pb-6 xl:justify-center xl:px-8 xl:py-28">
+      <div className="mobile-section-safe mx-auto flex h-full min-h-0 w-full max-w-[1440px] flex-col justify-start px-4 pt-20 pb-4 sm:px-5 sm:pt-30 sm:pb-6 xl:justify-center xl:px-8 xl:py-28">
         <div className="flex min-h-0 flex-col gap-4 sm:gap-6 xl:gap-8">
           <div className="flex shrink-0 flex-col gap-4 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
             <div
@@ -345,7 +345,7 @@ export function FooterSection({
       aria-labelledby="footer-title"
       className="flex h-[100svh] min-h-0 snap-start snap-always items-stretch overflow-hidden bg-primary text-primary-foreground"
     >
-      <div className="mx-auto flex h-full min-h-0 w-full max-w-[1440px] flex-col justify-start px-4 pt-28 pb-4 sm:justify-center sm:px-5 sm:py-8 xl:px-8 xl:pt-32 xl:pb-8">
+      <div className="mobile-section-safe mx-auto flex h-full min-h-0 w-full max-w-[1440px] flex-col justify-start px-4 pt-20 pb-4 sm:justify-center sm:px-5 sm:py-8 xl:px-8 xl:pt-32 xl:pb-8">
         <div className="grid min-h-0 gap-8 xl:grid-cols-[minmax(20rem,0.76fr)_minmax(32rem,1.24fr)] xl:items-center xl:gap-12">
           <div
             className={`screen-shift flex h-full items-center ${

@@ -304,14 +304,12 @@ export default function Page() {
         aria-labelledby="hero-heading"
         className="flex h-[100svh] min-h-0 snap-start snap-always flex-col overflow-hidden"
       >
-        <header className="fixed inset-x-0 top-0 z-30 px-4 pt-4 sm:px-5 sm:pt-5 xl:px-8">
+        <header className="mobile-header-safe fixed inset-x-0 top-0 z-30 px-3 pt-3 sm:px-5 sm:pt-5 xl:px-8">
           <nav
             aria-label="Primary navigation"
             className={cn(
-              "screen-reveal screen-reveal-delay-1 header-shell mx-auto flex max-w-[1080px] items-center gap-6 rounded-[28px] bg-white shadow-[0_18px_55px_rgba(29,30,34,0.08)] backdrop-blur-sm",
-              isHeaderCompact
-                ? "h-20 px-5 sm:px-6 lg:px-7"
-                : "h-20 px-4 sm:px-5 lg:px-6"
+              "screen-reveal screen-reveal-delay-1 header-shell mx-auto flex h-16 max-w-[1080px] items-center gap-3 rounded-[22px] bg-white px-3 shadow-[0_18px_55px_rgba(29,30,34,0.08)] backdrop-blur-sm sm:h-20 sm:gap-6 sm:rounded-[28px] sm:px-5 lg:px-6",
+              isHeaderCompact ? "sm:px-6 lg:px-7" : "sm:px-5 lg:px-6"
             )}
           >
             <a
@@ -319,19 +317,19 @@ export default function Page() {
               aria-label="Voxform home"
               translate="no"
               className={cn(
-                "header-brand header-brand-motion flex shrink-0 items-center gap-3",
+                "header-brand header-brand-motion flex min-h-11 shrink-0 items-center gap-2 sm:gap-3",
                 isHeaderCompact ? "is-compact xl:pointer-events-none" : ""
               )}
               onClick={(event) => handleMenuClick(event, "#main-content")}
             >
-              <span className="flex size-9 items-center justify-center rounded-[12px] bg-primary text-primary-foreground">
+              <span className="flex size-8 items-center justify-center rounded-[10px] bg-primary text-primary-foreground sm:size-9 sm:rounded-[12px]">
                 <SparklesIcon
                   aria-hidden="true"
                   strokeWidth={1.8}
                   className="size-4.5"
                 />
               </span>
-              <span className="text-[1.05rem] font-semibold tracking-[-0.03em]">
+              <span className="text-base font-semibold tracking-[-0.03em] sm:text-[1.05rem]">
                 VOXFORM
               </span>
             </a>
@@ -375,7 +373,7 @@ export default function Page() {
               href="/dashboard"
               className={cn(
                 buttonVariants({ size: "default" }),
-                "header-cta header-cta-motion ml-auto shrink-0 px-6",
+                "header-cta header-cta-motion ml-auto shrink-0 px-4 sm:px-6",
                 isHeaderCompact ? "is-compact xl:pointer-events-none" : ""
               )}
             >
@@ -384,8 +382,8 @@ export default function Page() {
           </nav>
         </header>
 
-        <div className="mx-auto flex min-h-0 w-full max-w-[1440px] flex-1 flex-col px-4 pt-24 pb-4 sm:px-5 sm:pt-30 sm:pb-8 xl:px-8 xl:pt-32 xl:pb-8">
-          <div className="grid min-h-0 flex-1 items-center gap-10 max-[920px]:gap-6 max-md:gap-3 lg:grid-cols-[minmax(0,0.84fr)_minmax(31rem,1.16fr)] lg:gap-14">
+        <div className="mobile-section-safe mx-auto flex min-h-0 w-full max-w-[1440px] flex-1 flex-col px-4 pt-20 pb-3 sm:px-5 sm:pt-30 sm:pb-8 xl:px-8 xl:pt-32 xl:pb-8">
+          <div className="grid min-h-0 flex-1 items-center gap-2 sm:gap-6 lg:grid-cols-[minmax(0,0.84fr)_minmax(31rem,1.16fr)] lg:gap-14">
             <div className="flex max-w-[39rem] flex-col items-start max-lg:mx-auto max-lg:items-center max-lg:text-center">
               <h1
                 id="hero-heading"
@@ -398,7 +396,7 @@ export default function Page() {
                 <RotatingHeroWord />
               </h1>
               <p
-                className={`screen-shift mt-7 max-w-[34rem] text-lg leading-relaxed text-pretty text-muted-foreground max-[920px]:mt-5 max-[920px]:text-base max-lg:mx-auto ${
+                className={`hero-mobile-description screen-shift mt-3 max-w-[34rem] text-base leading-relaxed text-pretty text-muted-foreground max-lg:mx-auto sm:mt-5 lg:mt-7 lg:text-lg ${
                   isHeroVisible
                     ? "screen-shift-visible screen-shift-delay-3"
                     : ""

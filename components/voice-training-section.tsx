@@ -32,7 +32,7 @@ export function VoiceTrainingSection({
       aria-labelledby="voice-training-title"
       className="flex h-[100svh] min-h-0 snap-start snap-always items-stretch overflow-hidden bg-transparent"
     >
-      <div className="mx-auto grid h-full min-h-0 w-full max-w-[1440px] items-center gap-8 px-4 pt-28 pb-5 sm:px-5 sm:py-8 xl:grid-cols-[minmax(19rem,0.7fr)_minmax(0,1.3fr)] xl:gap-14 xl:px-8 xl:py-28">
+      <div className="mobile-section-safe mx-auto grid h-full min-h-0 w-full max-w-[1440px] items-center gap-8 px-4 pt-20 pb-4 sm:px-5 sm:py-8 xl:grid-cols-[minmax(19rem,0.7fr)_minmax(0,1.3fr)] xl:gap-14 xl:px-8 xl:py-28">
         <div
           className={`screen-shift hidden max-w-[32rem] flex-col justify-center ${
             isVisible ? "screen-shift-visible screen-shift-delay-1" : ""

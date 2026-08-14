@@ -513,6 +513,15 @@
 /* Every landing section is a viewport-sized slide on phones. Content that
    can grow lives inside its own panel instead of pushing the next slide in. */
 @media (max-width: 767px) {
+  .mobile-header-safe {
+    padding-top: max(0.75rem, env(safe-area-inset-top));
+  }
+
+  .mobile-section-safe {
+    padding-top: calc(5rem + env(safe-area-inset-top));
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+
   .mobile-slide-description {
     display: none;
   }
@@ -534,6 +543,12 @@
   .clone-chat-header {
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;
+  }
+}
+
+@media (max-width: 767px) and (max-height: 720px) {
+  .hero-mobile-description {
+    display: none;
   }
 }
 

@@ -927,7 +927,7 @@ export function WritingModes() {
       aria-labelledby="modes-title"
       className="flex h-[100svh] min-h-0 snap-start snap-always items-stretch overflow-hidden bg-background"
     >
-      <div className="mx-auto h-full min-h-0 w-full max-w-[1440px] px-4 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-10 xl:py-28">
+      <div className="mobile-section-safe mx-auto h-full min-h-0 w-full max-w-[1440px] px-4 pt-20 pb-3 sm:px-5 sm:py-6 lg:px-8 lg:py-10 xl:py-28">
         <div className="relative flex h-full min-h-0 flex-col">
           <div className="grid min-h-0 flex-1 items-center gap-6 xl:grid-cols-[minmax(19rem,0.78fr)_minmax(0,1.22fr)] xl:gap-14">
             <div className="hidden h-full items-center xl:flex">
@@ -986,7 +986,7 @@ export function WritingModes() {
                   </div>
 
                   <div className="grid min-h-0 grid-cols-1 items-center gap-2 sm:gap-3 lg:grid-cols-[minmax(0,0.94fr)_2rem_minmax(0,1.06fr)] lg:gap-4">
-                    <article className="screen-shift screen-shift-visible screen-shift-delay-1 flex h-44 min-h-0 flex-col rounded-2xl bg-background p-4 sm:h-56 sm:p-5 lg:h-[22rem] lg:p-6">
+                    <article className="screen-shift screen-shift-visible screen-shift-delay-1 flex h-38 min-h-0 flex-col rounded-2xl bg-background p-4 sm:h-56 sm:p-5 lg:h-[22rem] lg:p-6">
                       <p className="text-sm font-medium">Before</p>
                       <Textarea
                         aria-label="Text to rewrite"
@@ -1001,7 +1001,7 @@ export function WritingModes() {
                       className="screen-shift screen-shift-visible screen-shift-delay-2 mx-auto size-4 rotate-90 lg:size-5 lg:rotate-0"
                     />
 
-                    <article className="screen-shift screen-shift-visible screen-shift-delay-3 flex h-44 min-h-0 flex-col rounded-2xl bg-primary p-4 text-primary-foreground sm:h-56 sm:p-5 lg:h-[22rem] lg:p-6">
+                    <article className="screen-shift screen-shift-visible screen-shift-delay-3 flex h-38 min-h-0 flex-col rounded-2xl bg-primary p-4 text-primary-foreground sm:h-56 sm:p-5 lg:h-[22rem] lg:p-6">
                       <div className="flex items-center justify-between gap-4">
                         <p className="text-sm font-medium text-primary-foreground/72">
                           In your voice

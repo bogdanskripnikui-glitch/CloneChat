@@ -117,7 +117,7 @@ function CompactFlowNode({
   return (
     <div
       className={cn(
-        "absolute flex min-w-0 items-center gap-2 rounded-[12px] bg-white px-3 py-2 shadow-[0_4px_8px_rgba(29,30,34,0.08)]",
+        "absolute flex min-w-0 items-center gap-1.5 rounded-[12px] bg-white px-2.5 py-2 shadow-[0_4px_8px_rgba(29,30,34,0.08)]",
         className
       )}
     >
@@ -152,7 +152,7 @@ export function VoiceFlowDiagram({ isActive }: { isActive: boolean }) {
     >
       <figure
         aria-hidden="true"
-        className="relative mx-auto aspect-[360/430] w-full max-w-[27rem] lg:hidden"
+        className="hero-mobile-flow relative mx-auto aspect-[360/430] w-full max-w-[19rem] sm:max-w-[27rem] lg:hidden"
       >
         <svg
           viewBox="0 0 360 430"
