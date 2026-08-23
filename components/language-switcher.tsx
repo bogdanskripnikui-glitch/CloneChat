@@ -1,41 +1,29 @@
 "use client"
 
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import { useLanguage, type Locale } from "@/lib/i18n"
+import { useLanguage } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 
 export function LanguageSwitcher({ className }: { className?: string }) {
   const { locale, setLocale } = useLanguage()
+  const isEnglish = locale === "en"
 
   return (
-    <ToggleGroup
-      value={[locale]}
-      onValueChange={(value) => {
-        const nextLocale = value[0] as Locale | undefined
-        if (nextLocale) setLocale(nextLocale)
-      }}
-      aria-label="Language"
-      size="sm"
-      spacing={0}
+    <button
+      type="button"
+      onClick={() => setLocale(isEnglish ? "ru" : "en")}
+      aria-label={
+        isEnglish
+          ? "Switch language to Russian"
+          : "Переключить язык на английский"
+      }
+      title={isEnglish ? "Русский" : "English"}
+      translate="no"
       className={cn(
-        "rounded-[12px] border border-border bg-background p-0.5",
+        "shrink-0 cursor-pointer px-1 py-2 text-xs font-medium tracking-[0.04em] text-muted-foreground outline-none select-none hover:text-foreground focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         className
       )}
     >
-      <ToggleGroupItem
-        value="en"
-        aria-label="English"
-        className="h-7 min-w-8 rounded-[9px] px-1.5 text-[0.64rem] tracking-[0.04em]"
-      >
-        ENG
-      </ToggleGroupItem>
-      <ToggleGroupItem
-        value="ru"
-        aria-label="Русский"
-        className="h-7 min-w-8 rounded-[9px] px-1.5 text-[0.64rem] tracking-[0.04em]"
-      >
-        RU
-      </ToggleGroupItem>
-    </ToggleGroup>
+      {isEnglish ? "ENG" : "RU"}
+    </button>
   )
 }
