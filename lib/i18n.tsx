@@ -107,6 +107,9 @@ const ru: Record<string, string> = {
     "Он сохраняет ваш словарь, темп и намерение, а затем адаптируется к ситуации и собеседнику.",
   "Your AI clone": "Ваш AI-клон",
   "Voice not added": "Голос не добавлен",
+  "Profile not added": "Профиль не добавлен",
+  "Analyze a writing or voice sample first so I can respond in your style.":
+    "Сначала проанализируйте текст или голос, чтобы я мог отвечать в вашей манере.",
   "I’ve learned the rhythm of your writing. What would you like to work on?":
     "Я изучил ритм ваших текстов. Над чем поработаем?",
   "Make this update feel clear, warm, and direct.":
