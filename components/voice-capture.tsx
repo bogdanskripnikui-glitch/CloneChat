@@ -19,6 +19,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils"
 
 const BAR_COUNT = 48
 
@@ -56,18 +57,39 @@ export function VoiceCapture({
   const audioUrlRef = useRef("")
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
-  const audioContextRef = useRef<AudioContext | null>(null)
+  const recordingAudioContextRef = useRef<AudioContext | null>(null)
+  const playbackAudioContextRef = useRef<AudioContext | null>(null)
+  const playbackSourceRef = useRef<MediaElementAudioSourceNode | null>(null)
+  const playbackAnalyserRef = useRef<AnalyserNode | null>(null)
   const animationFrameRef = useRef(0)
   const timerRef = useRef<number | null>(null)
   const startedAtRef = useRef(0)
   const chunksRef = useRef<Blob[]>([])
   const barRefs = useRef<Array<HTMLSpanElement | null>>([])
 
-  function stopVisualization() {
+  function restingLevel(index: number) {
+    return (
+      0.14 + ((Math.sin(index * 0.68) + 1) / 2) * (0.2 + ((index * 7) % 9) / 24)
+    )
+  }
+
+  function resetWaveform() {
+    barRefs.current.forEach((bar, index) => {
+      if (bar) bar.style.transform = `scaleY(${restingLevel(index)})`
+    })
+  }
+
+  function stopWaveformAnimation({ reset = true } = {}) {
     if (animationFrameRef.current) {
       window.cancelAnimationFrame(animationFrameRef.current)
       animationFrameRef.current = 0
     }
+
+    if (reset) resetWaveform()
+  }
+
+  function stopRecordingVisualization() {
+    stopWaveformAnimation()
 
     if (timerRef.current !== null) {
       window.clearInterval(timerRef.current)
@@ -77,9 +99,9 @@ export function VoiceCapture({
     streamRef.current?.getTracks().forEach((track) => track.stop())
     streamRef.current = null
 
-    if (audioContextRef.current) {
-      void audioContextRef.current.close()
-      audioContextRef.current = null
+    if (recordingAudioContextRef.current) {
+      void recordingAudioContextRef.current.close()
+      recordingAudioContextRef.current = null
     }
   }
 
@@ -89,11 +111,20 @@ export function VoiceCapture({
         mediaRecorderRef.current.stop()
       }
       if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current)
-      stopVisualization()
+      if (animationFrameRef.current)
+        window.cancelAnimationFrame(animationFrameRef.current)
+      if (timerRef.current !== null) window.clearInterval(timerRef.current)
+      streamRef.current?.getTracks().forEach((track) => track.stop())
+      if (recordingAudioContextRef.current)
+        void recordingAudioContextRef.current.close()
+      if (playbackAudioContextRef.current)
+        void playbackAudioContextRef.current.close()
     }
   }, [])
 
   function preparePlayback(file: File, duration: number | null) {
+    audioRef.current?.pause()
+    stopWaveformAnimation()
     if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current)
     const nextUrl = URL.createObjectURL(file)
     audioUrlRef.current = nextUrl
@@ -104,6 +135,7 @@ export function VoiceCapture({
   }
 
   function animateWaveform(analyser: AnalyserNode) {
+    stopWaveformAnimation({ reset: false })
     const frequencyData = new Uint8Array(analyser.frequencyBinCount)
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
@@ -116,12 +148,15 @@ export function VoiceCapture({
 
         barRefs.current.forEach((bar, index) => {
           if (!bar) return
+          const mirroredIndex =
+            index <= BAR_COUNT / 2 ? index : BAR_COUNT - 1 - index
           const dataIndex = Math.floor(
-            (index / Math.max(BAR_COUNT - 1, 1)) *
-              Math.min(frequencyData.length - 1, 220)
+            (mirroredIndex / Math.max(BAR_COUNT / 2 - 1, 1)) *
+              Math.min(frequencyData.length - 1, 96)
           )
-          const level = frequencyData[dataIndex] / 255
-          bar.style.transform = `scaleY(${Math.max(0.14, level)})`
+          const centerWeight = 0.76 + (mirroredIndex / (BAR_COUNT / 2)) * 0.24
+          const level = (frequencyData[dataIndex] / 255) * centerWeight
+          bar.style.transform = `scaleY(${Math.min(1, 0.14 + level * 0.86)})`
         })
 
         lastUpdate = time
@@ -133,6 +168,39 @@ export function VoiceCapture({
     animationFrameRef.current = window.requestAnimationFrame(draw)
   }
 
+  async function startPlaybackVisualization() {
+    const audio = audioRef.current
+    if (!audio) return
+
+    try {
+      let audioContext = playbackAudioContextRef.current
+      if (!audioContext || audioContext.state === "closed") {
+        audioContext = new AudioContext()
+        playbackAudioContextRef.current = audioContext
+      }
+
+      let analyser = playbackAnalyserRef.current
+      if (!analyser) {
+        analyser = audioContext.createAnalyser()
+        analyser.fftSize = 256
+        analyser.smoothingTimeConstant = 0.76
+        playbackAnalyserRef.current = analyser
+      }
+
+      if (!playbackSourceRef.current) {
+        const source = audioContext.createMediaElementSource(audio)
+        source.connect(analyser)
+        analyser.connect(audioContext.destination)
+        playbackSourceRef.current = source
+      }
+
+      if (audioContext.state === "suspended") await audioContext.resume()
+      animateWaveform(analyser)
+    } catch {
+      stopWaveformAnimation()
+    }
+  }
+
   async function startRecording() {
     if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
       onError("Voice recording is not supported in this browser.")
@@ -140,12 +208,15 @@ export function VoiceCapture({
     }
 
     try {
+      audioRef.current?.pause()
+      stopWaveformAnimation()
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       const audioContext = new AudioContext()
       const analyser = audioContext.createAnalyser()
       analyser.fftSize = 256
       analyser.smoothingTimeConstant = 0.72
       audioContext.createMediaStreamSource(stream).connect(analyser)
+      if (audioContext.state === "suspended") await audioContext.resume()
 
       const recorder = new MediaRecorder(stream)
       chunksRef.current = []
@@ -168,7 +239,7 @@ export function VoiceCapture({
       })
 
       streamRef.current = stream
-      audioContextRef.current = audioContext
+      recordingAudioContextRef.current = audioContext
       mediaRecorderRef.current = recorder
       startedAtRef.current = performance.now()
       setElapsedSeconds(0)
@@ -184,7 +255,7 @@ export function VoiceCapture({
         setElapsedSeconds(elapsed)
       }, 250)
     } catch {
-      stopVisualization()
+      stopRecordingVisualization()
       setIsRecording(false)
       onError("Allow microphone access to record a voice sample.")
     }
@@ -194,7 +265,7 @@ export function VoiceCapture({
     if (mediaRecorderRef.current?.state === "recording") {
       mediaRecorderRef.current.stop()
     }
-    stopVisualization()
+    stopRecordingVisualization()
     setIsRecording(false)
   }
 
@@ -223,9 +294,7 @@ export function VoiceCapture({
     onError("")
     setElapsedSeconds(0)
     if (fileInputRef.current) fileInputRef.current.value = ""
-    barRefs.current.forEach((bar) => {
-      if (bar) bar.style.transform = "scaleY(0.14)"
-    })
+    stopWaveformAnimation()
   }
 
   async function togglePlayback() {
@@ -257,23 +326,31 @@ export function VoiceCapture({
 
       <div className="rounded-xl border border-border bg-background p-4 sm:p-5">
         <div
-          aria-hidden="true"
-          className="flex h-20 items-center justify-center gap-1 overflow-hidden rounded-[10px] bg-muted/45 px-3"
+          role="img"
+          aria-label={
+            isRecording
+              ? "Live voice waveform"
+              : isPlaying
+                ? "Live audio playback waveform"
+                : "Voice waveform"
+          }
+          className={cn(
+            "flex h-20 items-center justify-center gap-1 overflow-hidden rounded-[10px] bg-muted/45 px-3 transition-colors duration-160",
+            (isRecording || isPlaying) && "bg-muted/70"
+          )}
         >
           {Array.from({ length: BAR_COUNT }, (_, index) => {
-            const restingLevel =
-              0.14 +
-              ((Math.sin(index * 0.68) + 1) / 2) *
-                (0.2 + ((index * 7) % 9) / 24)
-
             return (
               <span
                 key={index}
                 ref={(node) => {
                   barRefs.current[index] = node
                 }}
-                className="h-14 w-0.5 shrink-0 origin-center rounded-full bg-foreground"
-                style={{ transform: `scaleY(${restingLevel})` }}
+                className={cn(
+                  "h-14 w-0.5 shrink-0 origin-center rounded-full bg-foreground opacity-72 transition-opacity duration-160",
+                  (isRecording || isPlaying) && "opacity-100"
+                )}
+                style={{ transform: `scaleY(${restingLevel(index)})` }}
               />
             )
           })}
@@ -350,11 +427,18 @@ export function VoiceCapture({
               onTimeUpdate={(event) =>
                 setPlaybackTime(event.currentTarget.currentTime)
               }
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
+              onPlay={() => {
+                setIsPlaying(true)
+                void startPlaybackVisualization()
+              }}
+              onPause={() => {
+                setIsPlaying(false)
+                stopWaveformAnimation()
+              }}
               onEnded={() => {
                 setIsPlaying(false)
                 setPlaybackTime(0)
+                stopWaveformAnimation()
               }}
             />
 

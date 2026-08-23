@@ -64,6 +64,10 @@ const ru: Record<string, string> = {
   "Upload audio": "Загрузить аудио",
   "Your waveform will react to your voice.":
     "Дорожка будет реагировать на громкость вашего голоса.",
+  "Voice waveform": "Волновая форма голоса",
+  "Live voice waveform": "Активная волновая форма голоса",
+  "Live audio playback waveform":
+    "Активная волновая форма воспроизводимого аудио",
   "Record or upload MP3, WAV, M4A, WebM, or OGG. Clear recordings produce a more accurate voice clone.":
     "Запишите голос или загрузите MP3, WAV, M4A, WebM или OGG. Чистая запись даст более точный клон.",
   "Upload TXT or Markdown files of any length.":
