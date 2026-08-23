@@ -502,6 +502,16 @@ export function DashboardShell() {
                 <span className="hidden rounded-full border border-border/70 bg-background px-3 py-1 text-xs text-muted-foreground sm:inline-flex">
                   No password yet
                 </span>
+                <Link
+                  href="/"
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    "hidden h-10 gap-2 px-3 text-xs xl:inline-flex"
+                  )}
+                >
+                  <LogOutIcon data-icon="inline-start" aria-hidden="true" />
+                  Log out
+                </Link>
                 <Dialog.Root
                   open={isMobileMenuOpen}
                   onOpenChange={setIsMobileMenuOpen}
