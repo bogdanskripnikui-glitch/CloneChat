@@ -14,13 +14,15 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { VoicePlaybackButton } from "@/components/voice-playback-button"
 import { useLanguage, type Locale } from "@/lib/i18n"
-import { useSavedVoiceClone } from "@/lib/stylelab/voice-clone"
+import { useSavedVoiceProfile } from "@/lib/stylelab/voice-profile"
+import type { ConversationMessage } from "@/lib/stylelab/types"
 import { cn } from "@/lib/utils"
 
 type Attachment = {
   id: string
   name: string
   size: number
+  content?: string
 }
 
 type ChatMessage = {
@@ -36,23 +38,18 @@ type EmojiGroup = {
   emoji: string[]
 }
 
-function getInitialMessages(locale: Locale): ChatMessage[] {
+function getInitialMessages(
+  locale: Locale,
+  profileName?: string
+): ChatMessage[] {
   if (locale === "ru") {
     return [
       {
         id: 1,
         role: "assistant",
-        text: "Я изучил ритм ваших текстов. Над чем поработаем?",
-      },
-      {
-        id: 2,
-        role: "user",
-        text: "Сделай это сообщение ясным, тёплым и прямым.",
-      },
-      {
-        id: 3,
-        role: "assistant",
-        text: "Конечно. Сделаю кратко, живо и близко к вашей естественной манере.",
+        text: profileName
+          ? `Профиль «${profileName}» готов. О чём поговорим?`
+          : "Сначала проанализируйте текст или голос, чтобы я мог писать в вашей манере.",
       },
     ]
   }
@@ -61,17 +58,9 @@ function getInitialMessages(locale: Locale): ChatMessage[] {
     {
       id: 1,
       role: "assistant",
-      text: "I’ve learned the rhythm of your writing. What would you like to work on?",
-    },
-    {
-      id: 2,
-      role: "user",
-      text: "Make this update feel clear, warm, and direct.",
-    },
-    {
-      id: 3,
-      role: "assistant",
-      text: "Absolutely. I’ll keep it concise, human, and close to how you naturally write.",
+      text: profileName
+        ? `Your “${profileName}” profile is ready. What would you like to talk about?`
+        : "Analyze a writing or voice sample first so I can respond in your style.",
     },
   ]
 }
@@ -324,35 +313,9 @@ const emojiGroups: EmojiGroup[] = [
   },
 ]
 
-const quickEmoji = ["✦", "👍", "💬", "✨"]
-
 function formatSize(bytes: number) {
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
-
-function makeReply(text: string, hasAttachments: boolean, locale: Locale) {
-  if (locale === "ru") {
-    if (hasAttachments) {
-      return "Файл получил. Использую его как контекст и сохраню ясный, тёплый и узнаваемый стиль."
-    }
-
-    if (text.toLowerCase().includes("письм")) {
-      return "Я бы сделал письмо прямым и живым: сначала суть, затем спокойный темп и пространство для ответа."
-    }
-
-    return "Я бы сказал так: достаточно ясно, чтобы продолжить разговор, и достаточно тепло, чтобы это всё ещё звучало как вы."
-  }
-
-  if (hasAttachments) {
-    return "I’ve got the attachment. I’ll use it as context and keep the rewrite clear, warm, and recognisably yours."
-  }
-
-  if (text.toLowerCase().includes("email")) {
-    return "I’d make this email straightforward and human: lead with the point, keep the pace calm, and leave room for the reader to reply."
-  }
-
-  return "Here’s how I’d say it: clear enough to move the conversation forward, warm enough to still sound like you."
 }
 
 export function VoiceCloneChat({
@@ -361,7 +324,7 @@ export function VoiceCloneChat({
   onRequestVoice: () => void
 }) {
   const { locale } = useLanguage()
-  const savedVoice = useSavedVoiceClone()
+  const savedProfile = useSavedVoiceProfile()
   const [messages, setMessages] = useState(() => getInitialMessages(locale))
   const [draft, setDraft] = useState("")
   const [attachments, setAttachments] = useState<Attachment[]>([])
@@ -369,33 +332,26 @@ export function VoiceCloneChat({
   const [isVisible, setIsVisible] = useState(false)
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false)
   const [activeEmojiGroup, setActiveEmojiGroup] = useState(0)
-  const responseTimer = useRef<number | null>(null)
-  const messageId = useRef(getInitialMessages(locale).length)
+  const [requestError, setRequestError] = useState("")
+  const messageId = useRef(1)
   const scrollerRef = useRef<HTMLDivElement>(null)
   const sectionRef = useRef<HTMLElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const emojiPickerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    return () => {
-      if (responseTimer.current) window.clearTimeout(responseTimer.current)
-    }
-  }, [])
-
-  useEffect(() => {
     const resetTimer = window.setTimeout(() => {
-      if (responseTimer.current) window.clearTimeout(responseTimer.current)
-      responseTimer.current = null
-      const localizedMessages = getInitialMessages(locale)
+      const localizedMessages = getInitialMessages(locale, savedProfile?.name)
       messageId.current = localizedMessages.length
       setMessages(localizedMessages)
       setDraft("")
       setAttachments([])
       setIsReplying(false)
       setIsEmojiPickerOpen(false)
+      setRequestError("")
     }, 0)
     return () => window.clearTimeout(resetTimer)
-  }, [locale])
+  }, [locale, savedProfile?.id, savedProfile?.name])
 
   useEffect(() => {
     const scroller = scrollerRef.current
@@ -440,13 +396,20 @@ export function VoiceCloneChat({
     setDraft((current) => `${current}${emoji}`)
   }
 
-  function handleFiles(files: FileList | null) {
+  async function handleFiles(files: FileList | null) {
     if (!files) return
-    const nextFiles = Array.from(files).map((file) => ({
-      id: `${file.name}-${file.size}-${file.lastModified}`,
-      name: file.name,
-      size: file.size,
-    }))
+    const nextFiles = await Promise.all(
+      Array.from(files).map(async (file) => ({
+        id: `${file.name}-${file.size}-${file.lastModified}`,
+        name: file.name,
+        size: file.size,
+        content:
+          file.size <= 250_000 &&
+          /^(text\/|application\/(json|xml))/.test(file.type)
+            ? (await file.text()).slice(0, 50_000)
+            : undefined,
+      }))
+    )
     setAttachments((current) => [
       ...current,
       ...nextFiles.filter(
@@ -460,11 +423,25 @@ export function VoiceCloneChat({
     setAttachments((current) => current.filter((file) => file.id !== id))
   }
 
-  function sendMessage() {
+  async function sendMessage() {
     const text = draft.trim()
     if ((!text && attachments.length === 0) || isReplying) return
+    if (!savedProfile) {
+      setRequestError(
+        locale === "ru"
+          ? "Сначала проанализируйте текст или голос на предыдущем экране."
+          : "Analyze a writing or voice sample on the previous screen first."
+      )
+      return
+    }
 
     const sentAttachments = attachments
+    const history: ConversationMessage[] = messages
+      .slice(-24)
+      .map((message) => ({
+        role: message.role,
+        content: message.text,
+      }))
     messageId.current += 1
     setMessages((current) => [
       ...current,
@@ -479,19 +456,56 @@ export function VoiceCloneChat({
     setAttachments([])
     setIsReplying(true)
     setIsEmojiPickerOpen(false)
+    setRequestError("")
 
-    responseTimer.current = window.setTimeout(() => {
-      messageId.current += 1
+    try {
+      const response = await fetch("/api/stylelab/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message:
+            text ||
+            (locale === "ru"
+              ? "Используй приложенный контекст и ответь естественно."
+              : "Use the attached context and respond naturally."),
+          language: locale === "ru" ? "Russian" : "English",
+          profile: savedProfile,
+          history,
+          attachmentContext: sentAttachments.flatMap((attachment) =>
+            attachment.content
+              ? [`${attachment.name}:\n${attachment.content}`]
+              : []
+          ),
+        }),
+      })
+      const payload = (await response.json()) as {
+        messages?: string[]
+        error?: string
+      }
+      if (!response.ok || !payload.messages?.length) {
+        throw new Error(
+          payload.error || "The voice model did not return a reply."
+        )
+      }
       setMessages((current) => [
         ...current,
-        {
-          id: messageId.current,
-          role: "assistant",
-          text: makeReply(text, sentAttachments.length > 0, locale),
-        },
+        ...payload.messages!.map((reply) => ({
+          id: ++messageId.current,
+          role: "assistant" as const,
+          text: reply,
+        })),
       ])
+    } catch (error) {
+      setRequestError(
+        error instanceof Error
+          ? error.message
+          : locale === "ru"
+            ? "Модель сейчас недоступна."
+            : "The voice model is unavailable."
+      )
+    } finally {
       setIsReplying(false)
-    }, 650)
+    }
   }
 
   return (
@@ -536,15 +550,17 @@ export function VoiceCloneChat({
             <div>
               <p className="text-sm font-medium">Your AI clone</p>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                {savedVoice ? `${savedVoice.name} · ready` : "Voice not added"}
+                {savedProfile
+                  ? `${savedProfile.name} · ready`
+                  : "Profile not added"}
               </p>
             </div>
             <span
               className={cn(
                 "ml-auto size-2 rounded-full",
-                savedVoice ? "bg-primary" : "bg-muted-foreground/35"
+                savedProfile ? "bg-primary" : "bg-muted-foreground/35"
               )}
-              aria-label={savedVoice ? "Voice ready" : "Voice not added"}
+              aria-label={savedProfile ? "Profile ready" : "Profile not added"}
             />
           </div>
 
@@ -558,7 +574,6 @@ export function VoiceCloneChat({
                 key={message.id}
                 className={cn(
                   "flex",
-                  message.id === 3 && "clone-starter-optional",
                   message.role === "user" ? "justify-end" : "justify-start"
                 )}
               >
@@ -624,6 +639,13 @@ export function VoiceCloneChat({
                     <i className="size-1 animate-bounce rounded-full bg-current" />
                   </span>
                 </span>
+              </div>
+            ) : null}
+            {requestError ? (
+              <div className="flex justify-start" role="alert">
+                <p className="max-w-[88%] rounded-[15px] bg-destructive/8 px-4 py-3 text-sm leading-relaxed text-destructive">
+                  {requestError}
+                </p>
               </div>
             ) : null}
           </div>

@@ -40,10 +40,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { VoiceCapture, type VoiceSample } from "@/components/voice-capture"
 import { VoicePlaybackButton } from "@/components/voice-playback-button"
+import { useLanguage } from "@/lib/i18n"
 import {
   saveVoiceClone,
   type SavedVoiceClone,
 } from "@/lib/stylelab/voice-clone"
+import {
+  readSavedVoiceProfile,
+  saveVoiceProfile,
+  useSavedVoiceProfile,
+} from "@/lib/stylelab/voice-profile"
 import type { VoiceAnalysis } from "@/lib/stylelab/types"
 import { cn } from "@/lib/utils"
 
@@ -313,6 +319,11 @@ export function VoiceWorkbench({
         throw new Error(payload.error || "Voice analysis failed.")
       setAnalysisResult(payload)
       if (clonedVoice) saveVoiceClone(clonedVoice)
+      saveVoiceProfile({
+        ...payload,
+        id: clonedVoice?.id ?? crypto.randomUUID(),
+        name: clonedVoice?.name ?? "Founder voice",
+      })
       setProgress(100)
       setShowInputPanel(false)
       setStatus("complete")
@@ -433,6 +444,14 @@ export function VoiceWorkbench({
       return
     }
 
+    if (analysisResult) {
+      const savedProfile = readSavedVoiceProfile()
+      saveVoiceProfile({
+        ...analysisResult,
+        id: savedProfile?.id ?? crypto.randomUUID(),
+        name: nextName,
+      })
+    }
     onVoiceReady?.(nextName, analysisResult ?? undefined)
   }
 
@@ -956,32 +975,18 @@ export function WritingModes({
 }: {
   onRequestVoice: () => void
 }) {
+  const { locale } = useLanguage()
+  const savedProfile = useSavedVoiceProfile()
   const [isVisible, setIsVisible] = useState(false)
   const [beforeText, setBeforeText] = useState(
     "We are excited to announce the launch of our new platform that helps teams improve productivity and streamline workflows across departments."
   )
   const [outputKind, setOutputKind] = useState<DraftKind>("post")
   const [isOutputMenuOpen, setIsOutputMenuOpen] = useState(false)
+  const [rewrittenText, setRewrittenText] = useState("")
+  const [isRewriting, setIsRewriting] = useState(false)
+  const [rewriteError, setRewriteError] = useState("")
   const sectionRef = useRef<HTMLElement>(null)
-
-  const rewrittenText = (() => {
-    const source =
-      beforeText.trim() ||
-      "Add a message, document, or email to rewrite it in your voice."
-
-    switch (outputKind) {
-      case "message":
-        return `Quick version: ${source}\n\nClear enough to act on, with the same calm, human rhythm.`
-      case "email":
-        return `Subject: A clearer update\n\n${source}\n\nI kept the message direct, useful, and easy to reply to.`
-      case "article":
-        return `${source}\n\nThe real value is not simply moving faster. It is keeping the person behind the words while adapting the writing to the format.`
-      case "reply":
-        return `Thanks — ${source}\n\nThat is the short, clear version in your own voice.`
-      default:
-        return `${source}\n\nThe point lands faster, the tone stays composed, and the message still sounds recognisably like you.`
-    }
-  })()
 
   useEffect(() => {
     const node = sectionRef.current
@@ -998,6 +1003,72 @@ export function WritingModes({
 
     return () => observer.disconnect()
   }, [])
+
+  useEffect(() => {
+    const source = beforeText.trim()
+    if (!isVisible || !source || !savedProfile) {
+      return
+    }
+
+    const controller = new AbortController()
+    const timer = window.setTimeout(async () => {
+      setIsRewriting(true)
+      setRewriteError("")
+      try {
+        const response = await fetch("/api/stylelab/rewrite", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text: source,
+            kind: outputKind,
+            language: locale === "ru" ? "Russian" : "English",
+            profile: savedProfile,
+          }),
+          signal: controller.signal,
+        })
+        const payload = (await response.json()) as {
+          text?: string
+          error?: string
+        }
+        if (!response.ok || !payload.text?.trim()) {
+          throw new Error(
+            payload.error || "The model did not return a rewrite."
+          )
+        }
+        setRewrittenText(payload.text.trim())
+      } catch (error) {
+        if (controller.signal.aborted) return
+        setRewriteError(
+          error instanceof Error
+            ? error.message
+            : locale === "ru"
+              ? "Не удалось переписать текст."
+              : "Could not rewrite the text."
+        )
+      } finally {
+        if (!controller.signal.aborted) setIsRewriting(false)
+      }
+    }, 600)
+
+    return () => {
+      window.clearTimeout(timer)
+      controller.abort()
+    }
+  }, [beforeText, isVisible, locale, outputKind, savedProfile])
+
+  const rewriteDisplay = !savedProfile
+    ? locale === "ru"
+      ? "Сначала создайте профиль из текста или голоса."
+      : "Create a profile from writing or voice first."
+    : !beforeText.trim()
+      ? locale === "ru"
+        ? "Добавьте текст для переписывания."
+        : "Add text to rewrite."
+      : isRewriting
+        ? locale === "ru"
+          ? "Переписываю…"
+          : "Rewriting…"
+        : rewriteError || rewrittenText
 
   return (
     <section
@@ -1086,11 +1157,13 @@ export function WritingModes({
                           In your voice
                         </p>
                         <div className="flex items-center gap-1">
-                          <VoicePlaybackButton
-                            text={rewrittenText}
-                            onRequestVoice={onRequestVoice}
-                            inverse
-                          />
+                          {rewrittenText && !isRewriting && !rewriteError ? (
+                            <VoicePlaybackButton
+                              text={rewrittenText}
+                              onRequestVoice={onRequestVoice}
+                              inverse
+                            />
+                          ) : null}
                           <div
                             className="relative"
                             onBlur={(event) => {
@@ -1164,8 +1237,17 @@ export function WritingModes({
                           </div>
                         </div>
                       </div>
-                      <p className="mt-3 min-h-0 flex-1 overflow-y-auto pr-1 text-sm leading-relaxed whitespace-pre-wrap text-primary-foreground/92 sm:mt-5 sm:text-base">
-                        {rewrittenText}
+                      <p
+                        aria-live="polite"
+                        role={rewriteError ? "alert" : undefined}
+                        className={cn(
+                          "mt-3 min-h-0 flex-1 overflow-y-auto pr-1 text-sm leading-relaxed whitespace-pre-wrap sm:mt-5 sm:text-base",
+                          rewriteError
+                            ? "text-red-200"
+                            : "text-primary-foreground/92"
+                        )}
+                      >
+                        {rewriteDisplay}
                       </p>
                     </article>
                   </div>

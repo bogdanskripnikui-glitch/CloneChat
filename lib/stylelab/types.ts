@@ -36,3 +36,14 @@ export type ChatRequest = {
 export type ChatResponse = {
   messages: string[]
 }
+
+export type RewriteRequest = {
+  text: string
+  kind: "post" | "message" | "email" | "article" | "reply"
+  language?: string
+  profile: VoiceProfile
+}
+
+export type RewriteResponse = {
+  text: string
+}
