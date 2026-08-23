@@ -32,7 +32,7 @@ export async function POST(request: Request) {
           Accept: "audio/mpeg",
         },
         body: JSON.stringify({
-          text: text.slice(0, 2500),
+          text,
           model_id: "eleven_multilingual_v2",
         }),
         signal: AbortSignal.timeout(90_000),

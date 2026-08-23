@@ -21,7 +21,6 @@ import {
 import { Input } from "@/components/ui/input"
 
 const BAR_COUNT = 48
-const MAX_AUDIO_SIZE = 25 * 1024 * 1024
 
 export type VoiceSample = {
   file: File
@@ -183,12 +182,6 @@ export function VoiceCapture({
           (performance.now() - startedAtRef.current) / 1000
         )
         setElapsedSeconds(elapsed)
-
-        if (elapsed >= 60 && recorder.state === "recording") {
-          recorder.stop()
-          stopVisualization()
-          setIsRecording(false)
-        }
       }, 250)
     } catch {
       stopVisualization()
@@ -210,11 +203,6 @@ export function VoiceCapture({
 
     if (!file.type.startsWith("audio/")) {
       onError("Choose an audio file such as MP3, WAV, M4A, or WebM.")
-      return
-    }
-
-    if (file.size > MAX_AUDIO_SIZE) {
-      onError("Choose an audio file smaller than 25 MB.")
       return
     }
 
@@ -306,7 +294,11 @@ export function VoiceCapture({
             {isRecording ? "Stop recording" : "Record voice"}
           </Button>
 
-          <span className="text-sm text-muted-foreground" role="status" aria-live="polite">
+          <span
+            className="text-sm text-muted-foreground"
+            role="status"
+            aria-live="polite"
+          >
             {isRecording
               ? `Recording ${formatDuration(elapsedSeconds)}`
               : value?.source === "recording"
@@ -314,7 +306,9 @@ export function VoiceCapture({
                 : "Your waveform will react to your voice."}
           </span>
 
-          <span className="hidden text-sm text-muted-foreground sm:inline">or</span>
+          <span className="hidden text-sm text-muted-foreground sm:inline">
+            or
+          </span>
           <Input
             ref={fileInputRef}
             id="voice-file"
@@ -347,7 +341,7 @@ export function VoiceCapture({
               onLoadedMetadata={(event) => {
                 const duration = Number.isFinite(event.currentTarget.duration)
                   ? event.currentTarget.duration
-                  : value.duration ?? 0
+                  : (value.duration ?? 0)
                 setPlaybackDuration(duration)
                 if (value.duration === null && duration > 0) {
                   onChange({ ...value, duration: Math.round(duration) })
@@ -369,7 +363,9 @@ export function VoiceCapture({
                 type="button"
                 variant="ghost"
                 size="icon-lg"
-                aria-label={isPlaying ? "Pause voice sample" : "Play voice sample"}
+                aria-label={
+                  isPlaying ? "Pause voice sample" : "Play voice sample"
+                }
                 onClick={togglePlayback}
                 className="shrink-0 rounded-[10px]"
               >
@@ -416,7 +412,8 @@ export function VoiceCapture({
       </div>
 
       <FieldDescription id="voice-help">
-        Record 20–60 seconds or upload MP3, WAV, M4A, WebM, or OGG up to 25 MB.
+        Record or upload MP3, WAV, M4A, WebM, or OGG. Clear recordings produce a
+        more accurate voice clone.
       </FieldDescription>
       <FieldError id="voice-error">{error}</FieldError>
     </Field>

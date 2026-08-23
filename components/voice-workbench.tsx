@@ -59,6 +59,7 @@ type PaywallReason = "text_limit" | "analysis_limit"
 
 const FREE_CHARACTER_LIMIT = 300
 const FREE_ANALYSIS_LIMIT = 2
+const ENABLE_USAGE_LIMITS = false
 
 const sourceSamples = {
   url: {
@@ -198,7 +199,11 @@ export function VoiceWorkbench({
       return
     }
 
-    if (sourceTab !== "voice" && text.length > FREE_CHARACTER_LIMIT) {
+    if (
+      ENABLE_USAGE_LIMITS &&
+      sourceTab !== "voice" &&
+      text.length > FREE_CHARACTER_LIMIT
+    ) {
       setIsPaywallDismissed(false)
       setPaywallReason("text_limit")
       setError("")
@@ -206,7 +211,7 @@ export function VoiceWorkbench({
       return
     }
 
-    if (analysisCount >= FREE_ANALYSIS_LIMIT) {
+    if (ENABLE_USAGE_LIMITS && analysisCount >= FREE_ANALYSIS_LIMIT) {
       setIsPaywallDismissed(false)
       setPaywallReason("analysis_limit")
       setError("")
@@ -214,7 +219,11 @@ export function VoiceWorkbench({
       return
     }
 
-    if (sourceTab !== "voice" && text.trim().length < 180) {
+    if (
+      ENABLE_USAGE_LIMITS &&
+      sourceTab !== "voice" &&
+      text.trim().length < 180
+    ) {
       setError(
         "Add at least 180 characters so the analysis can identify a reliable pattern."
       )
@@ -238,7 +247,11 @@ export function VoiceWorkbench({
       let sample = text.trim()
       let clonedVoice: SavedVoiceClone | null = null
       if (sourceTab === "voice" && voiceSample) {
-        if (voiceSample.duration !== null && voiceSample.duration < 20) {
+        if (
+          ENABLE_USAGE_LIMITS &&
+          voiceSample.duration !== null &&
+          voiceSample.duration < 20
+        ) {
           setVoiceAnalysisFailure("too_short")
           setProgress(100)
           setShowInputPanel(false)
@@ -335,7 +348,7 @@ export function VoiceWorkbench({
     }
 
     const contents = await file.text()
-    setText(contents.slice(0, 10000))
+    setText(contents)
     setFileName(file.name)
     setSelectedSource("upload")
     setError("")
@@ -522,7 +535,7 @@ export function VoiceWorkbench({
                       autoComplete="off"
                       value={text}
                       onChange={(event) => {
-                        setText(event.target.value.slice(0, 10000))
+                        setText(event.target.value)
                         setError("")
                         setStatus("idle")
                       }}
@@ -573,7 +586,7 @@ export function VoiceWorkbench({
                       onChange={(event) => handleFile(event.target.files?.[0])}
                     />
                     <FieldDescription id="file-help">
-                      TXT and Markdown files up to 10,000 characters.
+                      Upload TXT or Markdown files of any length.
                     </FieldDescription>
                     {fileName && (
                       <div className="flex min-w-0 items-center gap-3 text-sm font-medium">
@@ -868,7 +881,7 @@ export function VoiceWorkbench({
                   </h3>
                   <p className="mt-2 max-w-2xl text-sm leading-relaxed text-primary-foreground/68">
                     {voiceAnalysisFailure === "too_short"
-                      ? "This recording is under 20 seconds. Record 20–60 seconds with a few complete sentences."
+                      ? "Record a longer sample with a few complete sentences."
                       : "The audio is too quiet or unclear. Move closer to the microphone and reduce background noise."}
                   </p>
                 </div>
@@ -909,7 +922,7 @@ export function VoiceWorkbench({
                       : voiceSample
                         ? "Audio ready"
                         : "No audio"
-                    : `${text.length.toLocaleString()} / 10,000`}
+                    : `${text.length.toLocaleString()} characters`}
                 </span>
                 {canShowCollapsedInput ? (
                   <Button

@@ -22,13 +22,6 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
-    if (file.size > 25 * 1024 * 1024) {
-      return NextResponse.json(
-        { error: "Audio is limited to 25 MB." },
-        { status: 413 }
-      )
-    }
-
     const form = new FormData()
     form.append("files", file, file.name || "voice-sample.webm")
     form.set("name", name)
