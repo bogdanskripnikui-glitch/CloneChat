@@ -40,17 +40,12 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import type { VoiceAnalysis, VoiceProfile } from "@/lib/stylelab/types"
 import { cn } from "@/lib/utils"
 
 type DashboardSection = "dashboard" | "chat" | "billing" | "settings"
 type OutputKind = "post" | "message" | "email" | "article" | "reply"
 type BillingCycle = "monthly" | "yearly"
-
-type VoiceProfile = {
-  id: string
-  name: string
-  summary: string
-}
 
 const baseVoices: VoiceProfile[] = [
   {
@@ -323,20 +318,24 @@ export function DashboardShell() {
     return outputTemplates[outputKind].transform(sourceText, activeVoice)
   }, [activeVoice, outputKind, sourceText])
 
-  function addVoice(name: string) {
+  function addVoice(name: string, analysis?: VoiceAnalysis) {
     const next = voices.length + 1
     const newVoice: VoiceProfile = {
       id: `voice-${next}`,
       name,
-      summary: "Calm, controlled, multi-format",
+      summary: analysis?.summary || "Calm, controlled, multi-format",
+      style: analysis?.style,
+      lexicon: analysis?.lexicon,
+      metrics: analysis?.metrics,
+      examples: analysis?.examples,
     }
 
     setVoices((current) => [...current, newVoice])
     setActiveVoiceId(newVoice.id)
   }
 
-  function finishVoiceAnalysis(name: string) {
-    addVoice(name)
+  function finishVoiceAnalysis(name: string, analysis?: VoiceAnalysis) {
+    addVoice(name, analysis)
     setIsVoiceDialogReady(false)
     setIsVoiceDialogOpen(false)
   }

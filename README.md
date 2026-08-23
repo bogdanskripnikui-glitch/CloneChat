@@ -1,21 +1,27 @@
-# Next.js template
+# Voxform
 
-This is a Next.js template with shadcn/ui.
+Next.js website with the StyleLab voice-profile runtime ported to server routes.
 
-## Adding components
+## Local setup
 
-To add components to your app, run the following command:
+Copy `.env.example` to `.env.local` and add server-side credentials:
 
 ```bash
-npx shadcn@latest add button
+OPENAI_API_KEY=...
+OPENAI_MODEL=gpt-5.6
+ELEVENLABS_API_KEY=...
 ```
 
-This will place the ui components in the `components` directory.
+`OPENAI_API_KEY` powers writing analysis and the live clone chat. `ELEVENLABS_API_KEY` powers Scribe v2 transcription for recorded and uploaded voice samples. Keys are read only by server routes and are never sent to the browser.
 
-## Using components
+```bash
+npm run dev -- --port 3001
+```
 
-To use the components in your app, import them as follows:
+## Checks
 
-```tsx
-import { Button } from "@/components/ui/button";
+```bash
+npm run typecheck
+npm run lint
+npm run build
 ```

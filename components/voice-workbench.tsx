@@ -39,6 +39,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { VoiceCapture, type VoiceSample } from "@/components/voice-capture"
+import type { VoiceAnalysis } from "@/lib/stylelab/types"
 import { cn } from "@/lib/utils"
 
 const sampleText =
@@ -92,7 +93,7 @@ export function VoiceWorkbench({
 }: {
   isVisible?: boolean
   onNavigate?: (href: string) => void
-  onVoiceReady?: (name: string) => void
+  onVoiceReady?: (name: string, analysis?: VoiceAnalysis) => void
   startEmpty?: boolean
 }) {
   const [text, setText] = useState(startEmpty ? "" : sampleText)
@@ -119,6 +120,7 @@ export function VoiceWorkbench({
   const [voiceNameError, setVoiceNameError] = useState("")
   const [voiceAnalysisFailure, setVoiceAnalysisFailure] =
     useState<VoiceAnalysisFailure | null>(null)
+  const [analysisResult, setAnalysisResult] = useState<VoiceAnalysis | null>(null)
   const resultRef = useRef<HTMLDivElement>(null)
   const voiceNameInputRef = useRef<HTMLInputElement>(null)
 
@@ -146,6 +148,7 @@ export function VoiceWorkbench({
       setVoiceName("")
       setVoiceNameError("")
       setVoiceAnalysisFailure(null)
+      setAnalysisResult(null)
     }, 0)
 
     return () => window.clearTimeout(resetTimer)
@@ -154,50 +157,19 @@ export function VoiceWorkbench({
   useEffect(() => {
     if (status !== "analyzing") return
 
-    const phaseTimer =
-      analysisPhase === "indeterminate"
-        ? window.setTimeout(() => {
-            setAnalysisPhase("determinate")
-            setProgress(18)
-          }, 950)
-        : null
-
+    const phaseTimer = window.setTimeout(() => {
+      setAnalysisPhase("determinate")
+      setProgress((current) => Math.max(current, 18))
+    }, 500)
     const timer = window.setInterval(() => {
-      setProgress((current) => {
-        if (analysisPhase === "indeterminate") return current
-
-        const next = Math.min(current + 8, 100)
-
-        if (next === 100) {
-          if (phaseTimer !== null) {
-            window.clearTimeout(phaseTimer)
-          }
-          window.clearInterval(timer)
-          const failure =
-            sourceTab === "voice" && voiceSample
-              ? voiceSample.duration !== null && voiceSample.duration < 20
-                ? "too_short"
-                : voiceSample.file.size < 12000
-                  ? "low_quality"
-                  : null
-              : null
-
-          setVoiceAnalysisFailure(failure)
-          setShowInputPanel(false)
-          setStatus(failure ? "failed" : "complete")
-        }
-
-        return next
-      })
-    }, 120)
+      setProgress((current) => Math.min(current + 4, 92))
+    }, 240)
 
     return () => {
-      if (phaseTimer !== null) {
-        window.clearTimeout(phaseTimer)
-      }
+      window.clearTimeout(phaseTimer)
       window.clearInterval(timer)
     }
-  }, [analysisPhase, sourceTab, status, voiceSample])
+  }, [status])
 
   useEffect(() => {
     if (status === "complete" || status === "failed") {
@@ -211,7 +183,7 @@ export function VoiceWorkbench({
     }
   }, [isNamingVoice])
 
-  function analyzeVoice() {
+  async function analyzeVoice() {
     if (sourceTab === "voice" && !voiceSample) {
       setError("Record or upload a voice sample before analysis.")
       return
@@ -244,6 +216,7 @@ export function VoiceWorkbench({
     setIsNamingVoice(false)
     setVoiceNameError("")
     setVoiceAnalysisFailure(null)
+    setAnalysisResult(null)
     setPaywallReason(null)
     setIsPaywallDismissed(false)
     setAnalyzedTab(sourceTab)
@@ -251,6 +224,61 @@ export function VoiceWorkbench({
     setProgress(0)
     setStatus("analyzing")
     setAnalysisCount((current) => current + 1)
+
+    try {
+      let sample = text.trim()
+      if (sourceTab === "voice" && voiceSample) {
+        if (voiceSample.duration !== null && voiceSample.duration < 20) {
+          setVoiceAnalysisFailure("too_short")
+          setProgress(100)
+          setShowInputPanel(false)
+          setStatus("failed")
+          return
+        }
+        const form = new FormData()
+        form.set("file", voiceSample.file)
+        const transcriptionResponse = await fetch("/api/stylelab/transcribe", {
+          method: "POST",
+          body: form,
+        })
+        const transcription = (await transcriptionResponse.json()) as {
+          transcript?: string
+          error?: string
+        }
+        if (!transcriptionResponse.ok || !transcription.transcript) {
+          if (transcriptionResponse.status === 422) {
+            setVoiceAnalysisFailure("low_quality")
+            setProgress(100)
+            setShowInputPanel(false)
+            setStatus("failed")
+            return
+          }
+          throw new Error(transcription.error || "Voice transcription failed.")
+        }
+        sample = transcription.transcript
+      }
+
+      const response = await fetch("/api/stylelab/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ samples: [sample] }),
+      })
+      const payload = (await response.json()) as VoiceAnalysis & { error?: string }
+      if (!response.ok) throw new Error(payload.error || "Voice analysis failed.")
+      setAnalysisResult(payload)
+      setProgress(100)
+      setShowInputPanel(false)
+      setStatus("complete")
+    } catch (analysisError) {
+      setError(
+        analysisError instanceof Error
+          ? analysisError.message
+          : "Voice analysis failed."
+      )
+      setStatus("idle")
+      setProgress(0)
+      setAnalysisPhase("indeterminate")
+    }
   }
 
   function loadSourceSample(source: keyof typeof sourceSamples) {
@@ -358,7 +386,7 @@ export function VoiceWorkbench({
       return
     }
 
-    onVoiceReady?.(nextName)
+    onVoiceReady?.(nextName, analysisResult ?? undefined)
   }
 
   return (

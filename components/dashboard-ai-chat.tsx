@@ -5,13 +5,10 @@ import { FileIcon, PaperclipIcon, SendIcon, SmilePlusIcon, SparklesIcon, XIcon }
 
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
+import type { ConversationMessage, VoiceProfile } from "@/lib/stylelab/types"
 import { cn } from "@/lib/utils"
 
-export type DashboardChatVoice = {
-  id: string
-  name: string
-  summary: string
-}
+export type DashboardChatVoice = VoiceProfile
 
 type DashboardAiChatProps = {
   voices: DashboardChatVoice[]
@@ -20,7 +17,7 @@ type DashboardAiChatProps = {
   onAddVoice: () => void
 }
 
-type Attachment = { id: string; name: string; size: number }
+type Attachment = { id: string; name: string; size: number; content?: string }
 type Message = { id: number; role: "assistant" | "user"; text: string; attachments?: Attachment[] }
 
 const emojiGroups = [
@@ -40,18 +37,13 @@ function initialMessages(voice: DashboardChatVoice): Message[] {
   return [{ id: 1, role: "assistant", text: `I’m here in your ${voice.name.toLowerCase()} voice. What would you like to work through?` }]
 }
 
-function makeReply(text: string, hasAttachments: boolean, voice: DashboardChatVoice) {
-  if (hasAttachments) return `I’ve got the attachment. I’ll use it as context and keep the response ${voice.summary.toLowerCase()}.`
-  if (text.toLowerCase().includes("email")) return "I’d make the email straightforward and human: lead with the point, keep the pace calm, and leave room for a reply."
-  return "I’d keep this clear enough to move the conversation forward, and human enough to still sound like you."
-}
-
 export function DashboardAiChat({ voices, selectedVoiceId, onSelectVoice, onAddVoice }: DashboardAiChatProps) {
   const selectedVoice = useMemo(() => voices.find((voice) => voice.id === selectedVoiceId) ?? voices[0], [selectedVoiceId, voices])
   const [messages, setMessages] = useState<Message[]>(() => selectedVoice ? initialMessages(selectedVoice) : [])
   const [draft, setDraft] = useState("")
   const [attachments, setAttachments] = useState<Attachment[]>([])
   const [isReplying, setIsReplying] = useState(false)
+  const [requestError, setRequestError] = useState("")
   const [emojiOpen, setEmojiOpen] = useState(false)
   const [emojiGroup, setEmojiGroup] = useState(0)
   const responseTimer = useRef<number | null>(null)
@@ -76,9 +68,16 @@ export function DashboardAiChat({ voices, selectedVoiceId, onSelectVoice, onAddV
     return () => { window.removeEventListener("pointerdown", closePicker); window.removeEventListener("keydown", closeEscape) }
   }, [])
 
-  function selectFiles(files: FileList | null) {
+  async function selectFiles(files: FileList | null) {
     if (!files) return
-    const next = Array.from(files).map((file) => ({ id: `${file.name}-${file.size}-${file.lastModified}`, name: file.name, size: file.size }))
+    const next = await Promise.all(Array.from(files).map(async (file) => ({
+      id: `${file.name}-${file.size}-${file.lastModified}`,
+      name: file.name,
+      size: file.size,
+      content: file.size <= 250_000 && /^(text\/|application\/(json|xml))/.test(file.type)
+        ? (await file.text()).slice(0, 50_000)
+        : undefined,
+    })))
     setAttachments((current) => [...current, ...next.filter((file) => !current.some((item) => item.id === file.id))])
     if (fileInputRef.current) fileInputRef.current.value = ""
   }
@@ -93,11 +92,12 @@ export function DashboardAiChat({ voices, selectedVoiceId, onSelectVoice, onAddV
     setDraft("")
     setAttachments([])
     setIsReplying(false)
+    setRequestError("")
     setEmojiOpen(false)
     onSelectVoice(id)
   }
 
-  function sendMessage() {
+  async function sendMessage() {
     const text = draft.trim()
     if (!selectedVoice || (!text && attachments.length === 0) || isReplying) return
     const sentAttachments = attachments
@@ -106,12 +106,43 @@ export function DashboardAiChat({ voices, selectedVoiceId, onSelectVoice, onAddV
     setDraft("")
     setAttachments([])
     setIsReplying(true)
+    setRequestError("")
     setEmojiOpen(false)
-    responseTimer.current = window.setTimeout(() => {
-      messageId.current += 1
-      setMessages((current) => [...current, { id: messageId.current, role: "assistant", text: makeReply(text, sentAttachments.length > 0, selectedVoice) }])
+    const history: ConversationMessage[] = messages.slice(-24).map((message) => ({
+      role: message.role,
+      content: message.text,
+    }))
+    try {
+      const response = await fetch("/api/stylelab/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: text || "Use the attached context and respond naturally.",
+          language: "auto",
+          profile: selectedVoice,
+          history,
+          attachmentContext: sentAttachments.flatMap((attachment) =>
+            attachment.content ? [`${attachment.name}:\n${attachment.content}`] : []
+          ),
+        }),
+      })
+      const payload = (await response.json()) as { messages?: string[]; error?: string }
+      if (!response.ok || !payload.messages?.length) {
+        throw new Error(payload.error || "The voice model did not return a reply.")
+      }
+      setMessages((current) => [
+        ...current,
+        ...payload.messages!.map((reply) => ({
+          id: ++messageId.current,
+          role: "assistant" as const,
+          text: reply,
+        })),
+      ])
+    } catch (error) {
+      setRequestError(error instanceof Error ? error.message : "The voice model is unavailable.")
+    } finally {
       setIsReplying(false)
-    }, 640)
+    }
   }
 
   return (
@@ -144,6 +175,7 @@ export function DashboardAiChat({ voices, selectedVoiceId, onSelectVoice, onAddV
               {message.attachments?.length ? <div className={cn("flex flex-col gap-1.5", message.text && "mt-2")}>{message.attachments.map((attachment) => <div key={attachment.id} className={cn("flex items-center gap-2 rounded-[10px] border px-2 py-1.5", message.role === "user" ? "border-white/20 bg-white/10" : "border-border/70 bg-background/70")}><FileIcon aria-hidden="true" className="size-3.5 shrink-0" /><span className="min-w-0 flex-1 truncate text-xs">{attachment.name}</span><span className="text-[0.62rem] opacity-70">{formatSize(attachment.size)}</span></div>)}</div> : null}
             </div></div>)}
             {isReplying ? <div className="flex justify-start"><span className="rounded-[15px] bg-muted/58 px-3.5 py-2.5 text-sm text-muted-foreground">Writing…</span></div> : null}
+            {requestError ? <div role="alert" className="flex justify-start"><span className="max-w-[86%] rounded-[15px] border border-destructive/25 bg-destructive/5 px-3.5 py-2.5 text-sm text-destructive">{requestError}</span></div> : null}
           </div>
 
           <div className="border-t border-border/70 p-3 sm:p-4">
