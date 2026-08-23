@@ -371,17 +371,17 @@ export function VoiceCapture({
             {isRecording ? "Stop recording" : "Record voice"}
           </Button>
 
-          <span
-            className="text-sm text-muted-foreground"
-            role="status"
-            aria-live="polite"
-          >
-            {isRecording
-              ? `Recording ${formatDuration(elapsedSeconds)}`
-              : value?.source === "recording"
-                ? `Recorded ${formatDuration(value.duration ?? elapsedSeconds)}`
-                : "Your waveform will react to your voice."}
-          </span>
+          {isRecording || value?.source === "recording" ? (
+            <span
+              className="text-sm text-muted-foreground"
+              role="status"
+              aria-live="polite"
+            >
+              {isRecording
+                ? `Recording ${formatDuration(elapsedSeconds)}`
+                : `Recorded ${formatDuration(value?.duration ?? elapsedSeconds)}`}
+            </span>
+          ) : null}
 
           <span className="hidden text-sm text-muted-foreground sm:inline">
             or
