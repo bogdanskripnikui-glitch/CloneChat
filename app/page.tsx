@@ -415,9 +415,7 @@ export default function Page() {
                 <a
                   href="#voice-training"
                   onClick={(event) => handleMenuClick(event, "#voice-training")}
-                  className={cn(
-                    buttonVariants({ variant: "outline", size: "lg" })
-                  )}
+                  className={cn(buttonVariants({ size: "lg" }))}
                 >
                   See how it works
                   <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
