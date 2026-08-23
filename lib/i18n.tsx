@@ -72,6 +72,21 @@ const ru: Record<string, string> = {
     "Запишите голос или загрузите MP3, WAV, M4A, WebM или OGG. Чистая запись даст более точный клон.",
   "Upload TXT or Markdown files of any length.":
     "Загрузите TXT или Markdown любой длины.",
+  "Upload a writing sample": "Загрузите образец текста",
+  "Remove uploaded file": "Удалить загруженный файл",
+  "Audio ready": "Аудио готово",
+  "No audio": "Нет аудио",
+  "Back to result": "Вернуться к результату",
+  "Voice sample hidden": "Запись скрыта",
+  "Writing samples hidden": "Примеры текстов скрыты",
+  "Open the recording again to review or replace it.":
+    "Откройте запись, чтобы прослушать или заменить её.",
+  "Open your source text again and the result panel will collapse.":
+    "Откройте исходный текст — панель результата свернётся.",
+  "Open recording": "Открыть запись",
+  "Open samples": "Открыть примеры",
+  "Voice analysis progress": "Ход анализа голоса",
+  analyzing: "анализируем",
   "Writing samples and voice messages move through voice analysis into a reusable voice profile, which creates messages, chatbot conversations, emails, and replies.":
     "Тексты и голосовые сообщения проходят анализ и создают многоразовый профиль голоса для сообщений, чат-бота, писем и ответов.",
   "Your writing": "Ваши тексты",
@@ -89,13 +104,43 @@ const ru: Record<string, string> = {
   "One voice, adapted to every format": "Один голос для любого формата",
   "Source link or handle": "Ссылка или профиль",
   "Use sample import": "Импортировать пример",
+  "For now this loads a realistic sample flow for URL, Telegram, or docs-based imports.":
+    "Сейчас это запускает демонстрационный импорт из URL, Telegram или документов.",
   "Public writing URL": "Публичная ссылка на текст",
+  "Import published posts and keep the same tone in new drafts.":
+    "Импортируйте опубликованные посты и сохраняйте их тон в новых черновиках.",
   "Telegram chats": "Чаты Telegram",
+  "Load chat exports and learn your real conversational rhythm.":
+    "Загрузите экспорт чатов, чтобы изучить ваш естественный ритм общения.",
   "Docs and workspaces": "Документы и рабочие пространства",
+  "Bring in notes, docs, and internal writing for deeper voice coverage.":
+    "Добавьте заметки, документы и внутренние тексты для более точного профиля.",
+  "Imported from your site": "Импортировано с вашего сайта",
+  "Imported from Telegram export": "Импортировано из Telegram",
+  "Imported from docs": "Импортировано из документов",
   "Finding patterns in your voice…": "Ищем особенности вашего голоса…",
   "Finding patterns in your writing…": "Ищем особенности вашего текста…",
   "Voice profile ready": "Профиль голоса готов",
   "Your voice profile is ready": "Ваш профиль голоса готов",
+  "This is how it will appear in your library and drafting workspace.":
+    "Так он будет отображаться в библиотеке и редакторе.",
+  "We saved the tone, pacing, and delivery from your voice.":
+    "Мы сохранили тон, темп и подачу вашего голоса.",
+  "We saved the rhythm, tone, and vocabulary from your writing.":
+    "Мы сохранили ритм, тон и словарь ваших текстов.",
+  "We saved a reusable baseline for every new draft and conversation.":
+    "Мы сохранили профиль для каждого нового черновика и диалога.",
+  "We couldn’t analyze this recording": "Не удалось проанализировать запись",
+  "We need a longer voice sample.": "Нужен более длинный образец голоса.",
+  "We couldn’t hear your voice clearly enough.":
+    "Не удалось достаточно чётко распознать голос.",
+  "Record a longer sample with a few complete sentences.":
+    "Запишите несколько полных предложений.",
+  "The audio is too quiet or unclear. Move closer to the microphone and reduce background noise.":
+    "Запись слишком тихая или неразборчивая. Подойдите ближе к микрофону и уменьшите фоновый шум.",
+  "Try another sample": "Попробовать другой образец",
+  "Your voice sample stays private and can be deleted anytime.":
+    "Запись остаётся приватной, её можно удалить в любой момент.",
   "Name your voice": "Назовите голос",
   "Voice name": "Название голоса",
   "Add to library": "Добавить в библиотеку",
@@ -157,6 +202,9 @@ const ru: Record<string, string> = {
   "for first analysis": "за первый анализ",
   "per month": "в месяц",
   "per workspace": "за рабочее пространство",
+  "always free": "всегда бесплатно",
+  "per year": "в год",
+  "per year · save 21%": "в год · экономия 21%",
   "Start free": "Начать бесплатно",
   "Join Pro waitlist": "В лист ожидания Pro",
   "Request access": "Запросить доступ",
@@ -185,6 +233,11 @@ const ru: Record<string, string> = {
   "Join early access": "Получить ранний доступ",
   "We’ll only use it to send access updates.":
     "Мы используем почту только для новостей о доступе.",
+  "Add a working email to continue.":
+    "Введите действующий адрес электронной почты.",
+  "Request captured": "Заявка принята",
+  "You’re on the list.": "Вы в списке.",
+  "Submit another email": "Отправить другой адрес",
   "Back to first screen": "Вернуться к первому экрану",
   "Dashboard preview": "Предпросмотр панели",
   Dashboard: "Главная",
@@ -317,7 +370,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       const trimmed = raw.trim()
       if (!trimmed) return
       if (!textOrigins.has(node)) textOrigins.set(node, trimmed)
-      const original = textOrigins.get(node) ?? trimmed
+      let original = textOrigins.get(node) ?? trimmed
+      const previousTranslation = translateDynamic(original)
+      if (trimmed !== original && trimmed !== previousTranslation) {
+        original = trimmed
+        textOrigins.set(node, original)
+      }
       const translated = locale === "ru" ? translateDynamic(original) : original
       if (trimmed !== translated) {
         const leading = raw.match(/^\s*/)?.[0] ?? ""
@@ -337,7 +395,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
           attributeOrigins.set(element, origins)
         }
         if (!origins.has(attribute)) origins.set(attribute, current)
-        const original = origins.get(attribute) ?? current
+        let original = origins.get(attribute) ?? current
+        const previousTranslation = translateDynamic(original)
+        if (current !== original && current !== previousTranslation) {
+          original = current
+          origins.set(attribute, original)
+        }
         const translated =
           locale === "ru" ? translateDynamic(original) : original
         if (current !== translated) element.setAttribute(attribute, translated)

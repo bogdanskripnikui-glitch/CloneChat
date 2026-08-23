@@ -53,8 +53,15 @@ import {
 import type { VoiceAnalysis } from "@/lib/stylelab/types"
 import { cn } from "@/lib/utils"
 
-const sampleText =
-  "I believe clarity is a kindness. Good writing respects the reader’s time by saying what matters and leaving out what doesn’t. I like ideas that are concrete, useful, and honest. I prefer short sentences, active verbs, and a steady rhythm. I write like I think—direct, calm, and human."
+const sampleText = {
+  en: "I believe clarity is a kindness. Good writing respects the reader’s time by saying what matters and leaving out what doesn’t. I like ideas that are concrete, useful, and honest. I prefer short sentences, active verbs, and a steady rhythm. I write like I think—direct, calm, and human.",
+  ru: "Я считаю ясность формой уважения. Хороший текст бережёт время читателя: говорит о важном и убирает лишнее. Мне нравятся конкретные, полезные и честные идеи. Я предпочитаю короткие предложения, активные глаголы и ровный ритм. Я пишу так же, как думаю: прямо, спокойно и по-человечески.",
+} as const
+
+const rewriteSample = {
+  en: "We are excited to announce the launch of our new platform that helps teams improve productivity and streamline workflows across departments.",
+  ru: "Мы рады объявить о запуске новой платформы, которая помогает командам работать продуктивнее и упрощает процессы между отделами.",
+} as const
 
 type AnalysisStatus = "idle" | "analyzing" | "complete" | "failed"
 type AnalysisPhase = "indeterminate" | "determinate"
@@ -71,19 +78,40 @@ const sourceSamples = {
   url: {
     title: "Public writing URL",
     label: "Imported from your site",
-    text: "I try to make product updates useful in the first sentence. I lead with the outcome, cut filler, and keep the tempo steady. If something matters, I say it directly. If it does not, I leave it out. That habit carries into posts, launch notes, and replies.",
+    text: {
+      en: "I try to make product updates useful in the first sentence. I lead with the outcome, cut filler, and keep the tempo steady. If something matters, I say it directly. If it does not, I leave it out. That habit carries into posts, launch notes, and replies.",
+      ru: "Я стараюсь сделать обновление продукта полезным уже в первом предложении. Начинаю с результата, убираю лишнее и сохраняю ровный темп. Если что-то важно, говорю об этом прямо. Если нет — вырезаю. Так я пишу посты, заметки о запуске и ответы.",
+    },
   },
   telegram: {
     title: "Telegram chats",
     label: "Imported from Telegram export",
-    text: "Need the short version first: we can ship today if the copy stays simple. I would rather say one clear thing than five vague ones. Keep the tone calm, practical, and a little human. If there is friction, name it. If there is progress, show it without dressing it up.",
+    text: {
+      en: "Need the short version first: we can ship today if the copy stays simple. I would rather say one clear thing than five vague ones. Keep the tone calm, practical, and a little human. If there is friction, name it. If there is progress, show it without dressing it up.",
+      ru: "Сначала короткая версия: можем выпустить сегодня, если текст останется простым. Лучше сказать одну ясную вещь, чем пять расплывчатых. Тон — спокойный, практичный и живой. Если есть проблема, назовите её. Если есть прогресс, покажите его без украшательств.",
+    },
   },
   docs: {
     title: "Docs and workspaces",
     label: "Imported from docs",
-    text: "I write long-form when the decision needs context, but even then I prefer structure over noise. The point should be visible early. Examples matter more than abstract claims. I want the reader to leave with a direction, not with more ambiguity than they started with.",
+    text: {
+      en: "I write long-form when the decision needs context, but even then I prefer structure over noise. The point should be visible early. Examples matter more than abstract claims. I want the reader to leave with a direction, not with more ambiguity than they started with.",
+      ru: "Я пишу подробно, когда решению нужен контекст, но и тогда предпочитаю структуру шуму. Главная мысль должна появляться рано. Примеры важнее абстрактных утверждений. Читатель должен уйти с направлением, а не с ещё большей неопределённостью.",
+    },
   },
 } as const
+
+function localizePresetText(current: string, locale: "en" | "ru") {
+  const pairs = [
+    sampleText,
+    rewriteSample,
+    ...Object.values(sourceSamples).map((source) => source.text),
+  ]
+  const match = pairs.find(
+    (pair) => current === pair.en || current === pair.ru
+  )
+  return match ? match[locale] : current
+}
 
 const draftOptions = [
   { value: "post", label: "Post", icon: NotebookPenIcon },
@@ -110,7 +138,9 @@ export function VoiceWorkbench({
   startEmpty?: boolean
   initialSourceTab?: SourceTab
 }) {
-  const [text, setText] = useState(startEmpty ? "" : sampleText)
+  const { locale } = useLanguage()
+  const [text, setText] = useState<string>(startEmpty ? "" : sampleText[locale])
+  const localizedText = localizePresetText(text, locale)
   const [status, setStatus] = useState<AnalysisStatus>("idle")
   const [progress, setProgress] = useState(0)
   const [analysisPhase, setAnalysisPhase] =
@@ -208,7 +238,7 @@ export function VoiceWorkbench({
     if (
       ENABLE_USAGE_LIMITS &&
       sourceTab !== "voice" &&
-      text.length > FREE_CHARACTER_LIMIT
+      localizedText.length > FREE_CHARACTER_LIMIT
     ) {
       setIsPaywallDismissed(false)
       setPaywallReason("text_limit")
@@ -228,7 +258,7 @@ export function VoiceWorkbench({
     if (
       ENABLE_USAGE_LIMITS &&
       sourceTab !== "voice" &&
-      text.trim().length < 180
+      localizedText.trim().length < 180
     ) {
       setError(
         "Add at least 180 characters so the analysis can identify a reliable pattern."
@@ -250,7 +280,7 @@ export function VoiceWorkbench({
     setAnalysisCount((current) => current + 1)
 
     try {
-      let sample = text.trim()
+      let sample = localizedText.trim()
       let clonedVoice: SavedVoiceClone | null = null
       if (sourceTab === "voice" && voiceSample) {
         if (
@@ -340,7 +370,7 @@ export function VoiceWorkbench({
   }
 
   function loadSourceSample(source: keyof typeof sourceSamples) {
-    setText(sourceSamples[source].text)
+    setText(sourceSamples[source].text[locale])
     setSelectedSource(source)
     setSourceTab("paste")
     setFileName("")
@@ -398,7 +428,9 @@ export function VoiceWorkbench({
     }
 
     setText(
-      `Imported from ${trimmed}. I prefer clear structure, concrete verbs, and calm phrasing. If the message can be shorter, I shorten it. If a sentence adds no meaning, I cut it. The result should sound deliberate, not generated.`
+      locale === "ru"
+        ? `Импортировано из ${trimmed}. Я предпочитаю ясную структуру, конкретные глаголы и спокойные формулировки. Если сообщение можно сократить, я сокращаю. Если предложение не добавляет смысла, я его убираю. Результат должен звучать осознанно, а не сгенерированно.`
+        : `Imported from ${trimmed}. I prefer clear structure, concrete verbs, and calm phrasing. If the message can be shorter, I shorten it. If a sentence adds no meaning, I cut it. The result should sound deliberate, not generated.`
     )
     setSelectedSource("url")
     setSourceTab("paste")
@@ -552,7 +584,7 @@ export function VoiceWorkbench({
                       id="writing-samples"
                       name="writingSamples"
                       autoComplete="off"
-                      value={text}
+                      value={localizedText}
                       onChange={(event) => {
                         setText(event.target.value)
                         setError("")
@@ -941,7 +973,7 @@ export function VoiceWorkbench({
                       : voiceSample
                         ? "Audio ready"
                         : "No audio"
-                    : `${text.length.toLocaleString()} characters`}
+                    : `${localizedText.length.toLocaleString()} characters`}
                 </span>
                 {canShowCollapsedInput ? (
                   <Button
@@ -978,9 +1010,8 @@ export function WritingModes({
   const { locale } = useLanguage()
   const savedProfile = useSavedVoiceProfile()
   const [isVisible, setIsVisible] = useState(false)
-  const [beforeText, setBeforeText] = useState(
-    "We are excited to announce the launch of our new platform that helps teams improve productivity and streamline workflows across departments."
-  )
+  const [beforeText, setBeforeText] = useState<string>(rewriteSample[locale])
+  const localizedBeforeText = localizePresetText(beforeText, locale)
   const [outputKind, setOutputKind] = useState<DraftKind>("post")
   const [isOutputMenuOpen, setIsOutputMenuOpen] = useState(false)
   const [rewrittenText, setRewrittenText] = useState("")
@@ -1008,7 +1039,7 @@ export function WritingModes({
   }, [])
 
   useEffect(() => {
-    const source = beforeText.trim()
+    const source = localizedBeforeText.trim()
     if (!source || !savedProfile) {
       return
     }
@@ -1082,13 +1113,13 @@ export function WritingModes({
     return () => {
       window.clearTimeout(timer)
     }
-  }, [beforeText, locale, outputKind, savedProfile])
+  }, [beforeText, locale, localizedBeforeText, outputKind, savedProfile])
 
   const rewriteDisplay = !savedProfile
     ? locale === "ru"
       ? "Сначала создайте профиль из текста или голоса."
       : "Create a profile from writing or voice first."
-    : !beforeText.trim()
+    : !localizedBeforeText.trim()
       ? locale === "ru"
         ? "Добавьте текст для переписывания."
         : "Add text to rewrite."
@@ -1153,7 +1184,11 @@ export function WritingModes({
                       Adaptive modes
                     </p>
                     <p
-                      className={`screen-shift max-w-[22ch] text-[clamp(1.8rem,3.1vw,3rem)] leading-[1.02] font-medium tracking-[-0.04em] text-balance sm:mt-2 sm:text-[clamp(2rem,3.1vw,3rem)] ${
+                      className={`screen-shift text-balance font-medium tracking-[-0.035em] ${
+                        locale === "ru"
+                          ? "max-w-[25ch] text-[clamp(1.7rem,2.7vw,2.65rem)] leading-[1.08] sm:mt-2"
+                          : "max-w-[22ch] text-[clamp(1.8rem,3.1vw,3rem)] leading-[1.02] sm:mt-2 sm:text-[clamp(2rem,3.1vw,3rem)]"
+                      } ${
                         isVisible
                           ? "screen-shift-visible screen-shift-delay-4"
                           : ""
@@ -1167,10 +1202,10 @@ export function WritingModes({
                     <article className="screen-shift screen-shift-visible screen-shift-delay-1 flex h-38 min-h-0 flex-col rounded-2xl bg-background p-4 sm:h-56 sm:p-5 lg:h-[22rem] lg:p-6">
                       <div className="flex items-center justify-between gap-4">
                         <p className="text-sm font-medium">Before</p>
-                        {beforeText.trim() ? (
+                        {localizedBeforeText.trim() ? (
                           <div className="flex items-center gap-1">
                             <VoicePlaybackButton
-                              text={beforeText}
+                              text={localizedBeforeText}
                               onRequestVoice={onRequestVoice}
                             />
                           </div>
@@ -1178,7 +1213,7 @@ export function WritingModes({
                       </div>
                       <Textarea
                         aria-label="Text to rewrite"
-                        value={beforeText}
+                        value={localizedBeforeText}
                         onChange={(event) => setBeforeText(event.target.value)}
                         className="mt-3 min-h-0 flex-1 resize-none border-0 bg-transparent p-0 text-sm leading-relaxed text-muted-foreground shadow-none focus-visible:ring-0 sm:mt-4 sm:text-base"
                       />

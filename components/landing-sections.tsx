@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useLanguage } from "@/lib/i18n"
 
 function useSectionVisible(threshold = 0.45) {
   const [isVisible, setIsVisible] = useState(false)
@@ -321,6 +322,7 @@ export function FooterSection({
 }: {
   onNavigate: (href: string) => void
 }) {
+  const { locale } = useLanguage()
   const { isVisible, ref } = useSectionVisible(0.35)
   const [email, setEmail] = useState("")
   const [submitted, setSubmitted] = useState(false)
@@ -355,7 +357,11 @@ export function FooterSection({
             <div className="w-full max-w-[32rem]">
               <h2
                 id="footer-title"
-                className={`screen-shift max-w-[10ch] text-[clamp(2.65rem,4.5vw,4.5rem)] leading-[0.94] font-medium tracking-[-0.04em] text-balance ${
+                className={`screen-shift font-medium text-balance ${
+                  locale === "ru"
+                    ? "max-w-[15ch] text-[clamp(2.5rem,3.8vw,4rem)] leading-[0.98] tracking-[-0.035em]"
+                    : "max-w-[10ch] text-[clamp(2.65rem,4.5vw,4.5rem)] leading-[0.94] tracking-[-0.04em]"
+                } ${
                   isVisible ? "screen-shift-visible screen-shift-delay-2" : ""
                 }`}
               >

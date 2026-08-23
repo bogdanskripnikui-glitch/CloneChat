@@ -13,6 +13,7 @@ import { VoiceTrainingSection } from "@/components/voice-training-section"
 import { WritingModes } from "@/components/voice-workbench"
 import { buttonVariants } from "@/components/ui/button"
 import { useMagneticProximitySurfaces } from "@/hooks/use-magnetic-proximity-surfaces"
+import { useLanguage } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 
 const navigation = [
@@ -25,6 +26,7 @@ const navigation = [
 ]
 
 export default function Page() {
+  const { locale } = useLanguage()
   const [isHeroVisible, setIsHeroVisible] = useState(false)
   const [activeNavHref, setActiveNavHref] = useState("#main-content")
   const [scrollDirection, setScrollDirection] = useState<
@@ -320,7 +322,7 @@ export default function Page() {
           >
             <a
               href="#main-content"
-              aria-label="Voxform home"
+              aria-label={locale === "ru" ? "Главная Voxform" : "Voxform home"}
               translate="no"
               className={cn(
                 "header-brand header-brand-motion flex min-h-11 shrink-0 items-center gap-2 sm:gap-3",
