@@ -6,7 +6,7 @@ import { useLanguage } from "@/lib/i18n"
 
 const words = {
   en: ["words", "rhythm", "voice"],
-  ru: ["словами", "ритмом", "голосом"],
+  ru: ["ритмом", "стилем", "голосом"],
 }
 
 export function RotatingHeroWord() {
@@ -33,14 +33,16 @@ export function RotatingHeroWord() {
   return (
     <>
       <span className="sr-only">
-        AI clone with your words, rhythm, and voice.
+        {locale === "ru"
+          ? "С вашим ритмом, стилем и голосом."
+          : "AI clone with your words, rhythm, and voice."}
       </span>
       <span
         aria-hidden="true"
         className="inline-flex flex-col items-center lg:items-start"
       >
         <span className="whitespace-nowrap">
-          {locale === "ru" ? "AI-клон с вашими" : "AI clone with your"}
+          {locale === "ru" ? "С вашим" : "AI clone with your"}
         </span>
         <span className="hero-word-window">
           <span
