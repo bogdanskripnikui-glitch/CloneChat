@@ -30,6 +30,7 @@ export default function Page() {
   const [scrollDirection, setScrollDirection] = useState<
     "forward" | "backward"
   >("forward")
+  const [voiceTabRequest, setVoiceTabRequest] = useState(0)
   const dotFieldRef = useRef<HTMLCanvasElement>(null)
   const mainRef = useRef<HTMLElement>(null)
   const heroRef = useRef<HTMLElement>(null)
@@ -41,6 +42,11 @@ export default function Page() {
     if (!target) return
 
     target.scrollIntoView({ behavior: "smooth", block: "start" })
+  }
+
+  function requestVoiceUpload() {
+    setVoiceTabRequest((current) => current + 1)
+    navigateToSection("#voice-training")
   }
 
   function handleMenuClick(
@@ -447,9 +453,12 @@ export default function Page() {
         </div>
       </section>
 
-      <VoiceTrainingSection onNavigate={navigateToSection} />
-      <VoiceCloneChat />
-      <WritingModes />
+      <VoiceTrainingSection
+        onNavigate={navigateToSection}
+        voiceTabRequest={voiceTabRequest}
+      />
+      <VoiceCloneChat onRequestVoice={requestVoiceUpload} />
+      <WritingModes onRequestVoice={requestVoiceUpload} />
       <PricingSection onNavigate={navigateToSection} />
       <FooterSection onNavigate={navigateToSection} />
     </main>

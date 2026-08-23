@@ -39,6 +39,11 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { VoiceCapture, type VoiceSample } from "@/components/voice-capture"
+import { VoicePlaybackButton } from "@/components/voice-playback-button"
+import {
+  saveVoiceClone,
+  type SavedVoiceClone,
+} from "@/lib/stylelab/voice-clone"
 import type { VoiceAnalysis } from "@/lib/stylelab/types"
 import { cn } from "@/lib/utils"
 
@@ -90,11 +95,13 @@ export function VoiceWorkbench({
   onNavigate,
   onVoiceReady,
   startEmpty = false,
+  initialSourceTab = "paste",
 }: {
   isVisible?: boolean
   onNavigate?: (href: string) => void
   onVoiceReady?: (name: string, analysis?: VoiceAnalysis) => void
   startEmpty?: boolean
+  initialSourceTab?: SourceTab
 }) {
   const [text, setText] = useState(startEmpty ? "" : sampleText)
   const [status, setStatus] = useState<AnalysisStatus>("idle")
@@ -105,10 +112,10 @@ export function VoiceWorkbench({
   const [fileName, setFileName] = useState("")
   const [voiceSample, setVoiceSample] = useState<VoiceSample | null>(null)
   const [fileInputKey, setFileInputKey] = useState(0)
-  const [sourceTab, setSourceTab] = useState<SourceTab>("paste")
+  const [sourceTab, setSourceTab] = useState<SourceTab>(initialSourceTab)
   const [selectedSource, setSelectedSource] = useState<
     keyof typeof sourceSamples | "paste" | "voice" | "upload"
-  >("paste")
+  >(initialSourceTab === "sources" ? "paste" : initialSourceTab)
   const [sourceUrl, setSourceUrl] = useState("")
   const [showInputPanel, setShowInputPanel] = useState(true)
   const [analyzedTab, setAnalyzedTab] = useState<SourceTab>("paste")
@@ -120,7 +127,9 @@ export function VoiceWorkbench({
   const [voiceNameError, setVoiceNameError] = useState("")
   const [voiceAnalysisFailure, setVoiceAnalysisFailure] =
     useState<VoiceAnalysisFailure | null>(null)
-  const [analysisResult, setAnalysisResult] = useState<VoiceAnalysis | null>(null)
+  const [analysisResult, setAnalysisResult] = useState<VoiceAnalysis | null>(
+    null
+  )
   const resultRef = useRef<HTMLDivElement>(null)
   const voiceNameInputRef = useRef<HTMLInputElement>(null)
 
@@ -227,6 +236,7 @@ export function VoiceWorkbench({
 
     try {
       let sample = text.trim()
+      let clonedVoice: SavedVoiceClone | null = null
       if (sourceTab === "voice" && voiceSample) {
         if (voiceSample.duration !== null && voiceSample.duration < 20) {
           setVoiceAnalysisFailure("too_short")
@@ -256,6 +266,26 @@ export function VoiceWorkbench({
           throw new Error(transcription.error || "Voice transcription failed.")
         }
         sample = transcription.transcript
+
+        const cloneForm = new FormData()
+        cloneForm.set("file", voiceSample.file)
+        cloneForm.set("name", "Founder voice")
+        const cloneResponse = await fetch("/api/stylelab/clone", {
+          method: "POST",
+          body: cloneForm,
+        })
+        const clonePayload = (await cloneResponse.json()) as {
+          voiceId?: string
+          name?: string
+          error?: string
+        }
+        if (!cloneResponse.ok || !clonePayload.voiceId) {
+          throw new Error(clonePayload.error || "Voice cloning failed.")
+        }
+        clonedVoice = {
+          id: clonePayload.voiceId,
+          name: clonePayload.name || "Founder voice",
+        }
       }
 
       const response = await fetch("/api/stylelab/analyze", {
@@ -263,9 +293,13 @@ export function VoiceWorkbench({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ samples: [sample] }),
       })
-      const payload = (await response.json()) as VoiceAnalysis & { error?: string }
-      if (!response.ok) throw new Error(payload.error || "Voice analysis failed.")
+      const payload = (await response.json()) as VoiceAnalysis & {
+        error?: string
+      }
+      if (!response.ok)
+        throw new Error(payload.error || "Voice analysis failed.")
       setAnalysisResult(payload)
+      if (clonedVoice) saveVoiceClone(clonedVoice)
       setProgress(100)
       setShowInputPanel(false)
       setStatus("complete")
@@ -904,7 +938,11 @@ export function VoiceWorkbench({
   )
 }
 
-export function WritingModes() {
+export function WritingModes({
+  onRequestVoice,
+}: {
+  onRequestVoice: () => void
+}) {
   const [isVisible, setIsVisible] = useState(false)
   const [beforeText, setBeforeText] = useState(
     "We are excited to announce the launch of our new platform that helps teams improve productivity and streamline workflows across departments."
@@ -1034,74 +1072,83 @@ export function WritingModes() {
                         <p className="text-sm font-medium text-primary-foreground/72">
                           In your voice
                         </p>
-                        <div
-                          className="relative"
-                          onBlur={(event) => {
-                            if (
-                              !event.currentTarget.contains(event.relatedTarget)
-                            ) {
-                              setIsOutputMenuOpen(false)
-                            }
-                          }}
-                        >
-                          <button
-                            type="button"
-                            aria-haspopup="listbox"
-                            aria-expanded={isOutputMenuOpen}
-                            onClick={() =>
-                              setIsOutputMenuOpen((current) => !current)
-                            }
-                            className="inline-flex h-9 items-center gap-2 rounded-[10px] border border-white/22 bg-white/8 px-3 text-sm font-medium text-primary-foreground transition-[transform,border-color,background-color] duration-160 hover:border-white/42 hover:bg-white/12 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-[0.97]"
-                          >
-                            {
-                              draftOptions.find(
-                                (option) => option.value === outputKind
-                              )?.label
-                            }
-                            <ChevronDownIcon
-                              aria-hidden="true"
-                              className={cn(
-                                "size-4 text-primary-foreground/70 transition-transform duration-160",
-                                isOutputMenuOpen ? "rotate-180" : ""
-                              )}
-                            />
-                          </button>
-
-                          {isOutputMenuOpen ? (
-                            <div
-                              role="listbox"
-                              aria-label="Output format"
-                              className="absolute top-11 right-0 z-10 w-44 rounded-xl bg-white p-1 text-foreground shadow-[0_8px_18px_rgba(29,30,34,0.18)]"
-                            >
-                              {draftOptions.map(
-                                ({ value, label, icon: Icon }) => (
-                                  <button
-                                    key={value}
-                                    type="button"
-                                    role="option"
-                                    aria-selected={outputKind === value}
-                                    onClick={() => {
-                                      setOutputKind(value)
-                                      setIsOutputMenuOpen(false)
-                                    }}
-                                    className={cn(
-                                      "flex w-full items-center gap-2 rounded-[9px] px-3 py-2 text-left text-sm font-medium transition-colors duration-160",
-                                      outputKind === value
-                                        ? "bg-primary text-primary-foreground"
-                                        : "text-foreground/72 hover:bg-muted hover:text-foreground"
-                                    )}
-                                  >
-                                    <Icon
-                                      aria-hidden="true"
-                                      className="size-4"
-                                      strokeWidth={1.5}
-                                    />
-                                    {label}
-                                  </button>
+                        <div className="flex items-center gap-1">
+                          <VoicePlaybackButton
+                            text={rewrittenText}
+                            onRequestVoice={onRequestVoice}
+                            inverse
+                          />
+                          <div
+                            className="relative"
+                            onBlur={(event) => {
+                              if (
+                                !event.currentTarget.contains(
+                                  event.relatedTarget
                                 )
-                              )}
-                            </div>
-                          ) : null}
+                              ) {
+                                setIsOutputMenuOpen(false)
+                              }
+                            }}
+                          >
+                            <button
+                              type="button"
+                              aria-haspopup="listbox"
+                              aria-expanded={isOutputMenuOpen}
+                              onClick={() =>
+                                setIsOutputMenuOpen((current) => !current)
+                              }
+                              className="inline-flex h-9 items-center gap-2 rounded-[10px] border border-white/22 bg-white/8 px-3 text-sm font-medium text-primary-foreground transition-[transform,border-color,background-color] duration-160 hover:border-white/42 hover:bg-white/12 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-[0.97]"
+                            >
+                              {
+                                draftOptions.find(
+                                  (option) => option.value === outputKind
+                                )?.label
+                              }
+                              <ChevronDownIcon
+                                aria-hidden="true"
+                                className={cn(
+                                  "size-4 text-primary-foreground/70 transition-transform duration-160",
+                                  isOutputMenuOpen ? "rotate-180" : ""
+                                )}
+                              />
+                            </button>
+
+                            {isOutputMenuOpen ? (
+                              <div
+                                role="listbox"
+                                aria-label="Output format"
+                                className="absolute top-11 right-0 z-10 w-44 rounded-xl bg-white p-1 text-foreground shadow-[0_8px_18px_rgba(29,30,34,0.18)]"
+                              >
+                                {draftOptions.map(
+                                  ({ value, label, icon: Icon }) => (
+                                    <button
+                                      key={value}
+                                      type="button"
+                                      role="option"
+                                      aria-selected={outputKind === value}
+                                      onClick={() => {
+                                        setOutputKind(value)
+                                        setIsOutputMenuOpen(false)
+                                      }}
+                                      className={cn(
+                                        "flex w-full items-center gap-2 rounded-[9px] px-3 py-2 text-left text-sm font-medium transition-colors duration-160",
+                                        outputKind === value
+                                          ? "bg-primary text-primary-foreground"
+                                          : "text-foreground/72 hover:bg-muted hover:text-foreground"
+                                      )}
+                                    >
+                                      <Icon
+                                        aria-hidden="true"
+                                        className="size-4"
+                                        strokeWidth={1.5}
+                                      />
+                                      {label}
+                                    </button>
+                                  )
+                                )}
+                              </div>
+                            ) : null}
+                          </div>
                         </div>
                       </div>
                       <p className="mt-3 min-h-0 flex-1 overflow-y-auto pr-1 text-sm leading-relaxed whitespace-pre-wrap text-primary-foreground/92 sm:mt-5 sm:text-base">

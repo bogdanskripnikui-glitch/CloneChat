@@ -12,6 +12,8 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
+import { VoicePlaybackButton } from "@/components/voice-playback-button"
+import { useSavedVoiceClone } from "@/lib/stylelab/voice-clone"
 import { cn } from "@/lib/utils"
 
 type Attachment = {
@@ -318,7 +320,12 @@ function makeReply(text: string, hasAttachments: boolean) {
   return "Here’s how I’d say it: clear enough to move the conversation forward, warm enough to still sound like you."
 }
 
-export function VoiceCloneChat() {
+export function VoiceCloneChat({
+  onRequestVoice,
+}: {
+  onRequestVoice: () => void
+}) {
+  const savedVoice = useSavedVoiceClone()
   const [messages, setMessages] = useState(initialMessages)
   const [draft, setDraft] = useState("")
   const [attachments, setAttachments] = useState<Attachment[]>([])
@@ -478,12 +485,15 @@ export function VoiceCloneChat() {
             <div>
               <p className="text-sm font-medium">Your AI clone</p>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Founder voice · ready
+                {savedVoice ? `${savedVoice.name} · ready` : "Voice not added"}
               </p>
             </div>
             <span
-              className="ml-auto size-2 rounded-full bg-primary"
-              aria-label="Online"
+              className={cn(
+                "ml-auto size-2 rounded-full",
+                savedVoice ? "bg-primary" : "bg-muted-foreground/35"
+              )}
+              aria-label={savedVoice ? "Voice ready" : "Voice not added"}
             />
           </div>
 
@@ -501,45 +511,54 @@ export function VoiceCloneChat() {
                   message.role === "user" ? "justify-end" : "justify-start"
                 )}
               >
-                <div
-                  className={cn(
-                    "max-w-[84%] rounded-[15px] px-4 py-3 text-sm leading-relaxed",
-                    message.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted/58 text-foreground"
-                  )}
-                >
-                  {message.text ? <p>{message.text}</p> : null}
-                  {message.attachments?.length ? (
-                    <div
-                      className={cn(
-                        message.text ? "mt-3" : "",
-                        "flex flex-col gap-2"
-                      )}
-                    >
-                      {message.attachments.map((attachment) => (
-                        <div
-                          key={attachment.id}
-                          className={cn(
-                            "flex min-w-44 items-center gap-2 rounded-[10px] border px-2.5 py-2",
-                            message.role === "user"
-                              ? "border-white/20 bg-white/10"
-                              : "border-border/80 bg-background/70"
-                          )}
-                        >
-                          <FileIcon
-                            aria-hidden="true"
-                            className="size-4 shrink-0"
-                          />
-                          <span className="min-w-0 flex-1 truncate text-xs font-medium">
-                            {attachment.name}
-                          </span>
-                          <span className="text-[0.65rem] opacity-65">
-                            {formatSize(attachment.size)}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+                <div className="flex max-w-[88%] items-end gap-1.5">
+                  <div
+                    className={cn(
+                      "max-w-full rounded-[15px] px-4 py-3 text-sm leading-relaxed",
+                      message.role === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted/58 text-foreground"
+                    )}
+                  >
+                    {message.text ? <p>{message.text}</p> : null}
+                    {message.attachments?.length ? (
+                      <div
+                        className={cn(
+                          message.text ? "mt-3" : "",
+                          "flex flex-col gap-2"
+                        )}
+                      >
+                        {message.attachments.map((attachment) => (
+                          <div
+                            key={attachment.id}
+                            className={cn(
+                              "flex min-w-44 items-center gap-2 rounded-[10px] border px-2.5 py-2",
+                              message.role === "user"
+                                ? "border-white/20 bg-white/10"
+                                : "border-border/80 bg-background/70"
+                            )}
+                          >
+                            <FileIcon
+                              aria-hidden="true"
+                              className="size-4 shrink-0"
+                            />
+                            <span className="min-w-0 flex-1 truncate text-xs font-medium">
+                              {attachment.name}
+                            </span>
+                            <span className="text-[0.65rem] opacity-65">
+                              {formatSize(attachment.size)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                  {message.role === "assistant" && message.text ? (
+                    <VoicePlaybackButton
+                      text={message.text}
+                      onRequestVoice={onRequestVoice}
+                      className="shrink-0 rounded-[10px]"
+                    />
                   ) : null}
                 </div>
               </div>

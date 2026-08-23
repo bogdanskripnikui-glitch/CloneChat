@@ -6,8 +6,10 @@ import { VoiceWorkbench } from "@/components/voice-workbench"
 
 export function VoiceTrainingSection({
   onNavigate,
+  voiceTabRequest,
 }: {
   onNavigate: (href: string) => void
+  voiceTabRequest: number
 }) {
   const [isVisible, setIsVisible] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
@@ -51,7 +53,12 @@ export function VoiceTrainingSection({
           </p>
         </div>
 
-        <VoiceWorkbench isVisible={isVisible} onNavigate={onNavigate} />
+        <VoiceWorkbench
+          key={voiceTabRequest}
+          isVisible={isVisible}
+          onNavigate={onNavigate}
+          initialSourceTab={voiceTabRequest > 0 ? "voice" : "paste"}
+        />
       </div>
     </section>
   )
