@@ -19,7 +19,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
       title={isEnglish ? "Русский" : "English"}
       translate="no"
       className={cn(
-        "shrink-0 cursor-pointer px-1 py-2 text-xs font-medium tracking-[0.04em] text-muted-foreground outline-none select-none hover:text-foreground focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        "shrink-0 touch-manipulation cursor-pointer px-1 py-2 text-sm font-semibold tracking-[0.03em] text-foreground outline-none select-none hover:opacity-70 focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         className
       )}
     >

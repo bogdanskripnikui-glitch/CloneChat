@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import Link from "next/link"
 
 import { ArrowRightIcon, SparklesIcon } from "lucide-react"
 
@@ -376,18 +375,8 @@ export default function Page() {
               ))}
             </div>
 
-            <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <div className="ml-auto flex shrink-0 items-center">
               <LanguageSwitcher />
-              <Link
-                href="/dashboard"
-                className={cn(
-                  buttonVariants({ size: "default" }),
-                  "header-cta header-cta-motion shrink-0 px-3 text-xs sm:px-6 sm:text-sm",
-                  isHeaderCompact ? "is-compact xl:pointer-events-none" : ""
-                )}
-              >
-                Get started
-              </Link>
             </div>
           </nav>
         </header>
@@ -423,12 +412,6 @@ export default function Page() {
                     : ""
                 }`}
               >
-                <Link
-                  href="/dashboard"
-                  className={cn(buttonVariants({ size: "lg" }))}
-                >
-                  Start with my voice
-                </Link>
                 <a
                   href="#voice-training"
                   onClick={(event) => handleMenuClick(event, "#voice-training")}

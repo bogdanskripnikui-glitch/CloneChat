@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
-
-import { DashboardShell } from "@/components/dashboard-shell"
+import { redirect } from "next/navigation"
 
 export const metadata: Metadata = {
   title: "Voxform Dashboard",
@@ -9,5 +8,5 @@ export const metadata: Metadata = {
 }
 
 export default function DashboardPage() {
-  return <DashboardShell />
+  redirect("/")
 }
