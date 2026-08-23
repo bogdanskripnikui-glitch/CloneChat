@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { VoicePlaybackButton } from "@/components/voice-playback-button"
+import { useLanguage, type Locale } from "@/lib/i18n"
 import { useSavedVoiceClone } from "@/lib/stylelab/voice-clone"
 import { cn } from "@/lib/utils"
 
@@ -35,23 +36,45 @@ type EmojiGroup = {
   emoji: string[]
 }
 
-const initialMessages: ChatMessage[] = [
-  {
-    id: 1,
-    role: "assistant",
-    text: "I’ve learned the rhythm of your writing. What would you like to work on?",
-  },
-  {
-    id: 2,
-    role: "user",
-    text: "Make this update feel clear, warm, and direct.",
-  },
-  {
-    id: 3,
-    role: "assistant",
-    text: "Absolutely. I’ll keep it concise, human, and close to how you naturally write.",
-  },
-]
+function getInitialMessages(locale: Locale): ChatMessage[] {
+  if (locale === "ru") {
+    return [
+      {
+        id: 1,
+        role: "assistant",
+        text: "Я изучил ритм ваших текстов. Над чем поработаем?",
+      },
+      {
+        id: 2,
+        role: "user",
+        text: "Сделай это сообщение ясным, тёплым и прямым.",
+      },
+      {
+        id: 3,
+        role: "assistant",
+        text: "Конечно. Сделаю кратко, живо и близко к вашей естественной манере.",
+      },
+    ]
+  }
+
+  return [
+    {
+      id: 1,
+      role: "assistant",
+      text: "I’ve learned the rhythm of your writing. What would you like to work on?",
+    },
+    {
+      id: 2,
+      role: "user",
+      text: "Make this update feel clear, warm, and direct.",
+    },
+    {
+      id: 3,
+      role: "assistant",
+      text: "Absolutely. I’ll keep it concise, human, and close to how you naturally write.",
+    },
+  ]
+}
 
 const emojiGroups: EmojiGroup[] = [
   {
@@ -308,7 +331,19 @@ function formatSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-function makeReply(text: string, hasAttachments: boolean) {
+function makeReply(text: string, hasAttachments: boolean, locale: Locale) {
+  if (locale === "ru") {
+    if (hasAttachments) {
+      return "Файл получил. Использую его как контекст и сохраню ясный, тёплый и узнаваемый стиль."
+    }
+
+    if (text.toLowerCase().includes("письм")) {
+      return "Я бы сделал письмо прямым и живым: сначала суть, затем спокойный темп и пространство для ответа."
+    }
+
+    return "Я бы сказал так: достаточно ясно, чтобы продолжить разговор, и достаточно тепло, чтобы это всё ещё звучало как вы."
+  }
+
   if (hasAttachments) {
     return "I’ve got the attachment. I’ll use it as context and keep the rewrite clear, warm, and recognisably yours."
   }
@@ -325,8 +360,9 @@ export function VoiceCloneChat({
 }: {
   onRequestVoice: () => void
 }) {
+  const { locale } = useLanguage()
   const savedVoice = useSavedVoiceClone()
-  const [messages, setMessages] = useState(initialMessages)
+  const [messages, setMessages] = useState(() => getInitialMessages(locale))
   const [draft, setDraft] = useState("")
   const [attachments, setAttachments] = useState<Attachment[]>([])
   const [isReplying, setIsReplying] = useState(false)
@@ -334,7 +370,7 @@ export function VoiceCloneChat({
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false)
   const [activeEmojiGroup, setActiveEmojiGroup] = useState(0)
   const responseTimer = useRef<number | null>(null)
-  const messageId = useRef(initialMessages.length)
+  const messageId = useRef(getInitialMessages(locale).length)
   const scrollerRef = useRef<HTMLDivElement>(null)
   const sectionRef = useRef<HTMLElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -345,6 +381,21 @@ export function VoiceCloneChat({
       if (responseTimer.current) window.clearTimeout(responseTimer.current)
     }
   }, [])
+
+  useEffect(() => {
+    const resetTimer = window.setTimeout(() => {
+      if (responseTimer.current) window.clearTimeout(responseTimer.current)
+      responseTimer.current = null
+      const localizedMessages = getInitialMessages(locale)
+      messageId.current = localizedMessages.length
+      setMessages(localizedMessages)
+      setDraft("")
+      setAttachments([])
+      setIsReplying(false)
+      setIsEmojiPickerOpen(false)
+    }, 0)
+    return () => window.clearTimeout(resetTimer)
+  }, [locale])
 
   useEffect(() => {
     const scroller = scrollerRef.current
@@ -436,7 +487,7 @@ export function VoiceCloneChat({
         {
           id: messageId.current,
           role: "assistant",
-          text: makeReply(text, sentAttachments.length > 0),
+          text: makeReply(text, sentAttachments.length > 0, locale),
         },
       ])
       setIsReplying(false)

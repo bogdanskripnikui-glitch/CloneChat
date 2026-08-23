@@ -6,6 +6,7 @@ import Link from "next/link"
 import { ArrowRightIcon, SparklesIcon } from "lucide-react"
 
 import { FooterSection, PricingSection } from "@/components/landing-sections"
+import { LanguageSwitcher } from "@/components/language-switcher"
 import { RotatingHeroWord } from "@/components/rotating-hero-word"
 import { VoiceCloneChat } from "@/components/voice-clone-chat"
 import { VoiceFlowDiagram } from "@/components/voice-flow-diagram"
@@ -375,16 +376,19 @@ export default function Page() {
               ))}
             </div>
 
-            <Link
-              href="/dashboard"
-              className={cn(
-                buttonVariants({ size: "default" }),
-                "header-cta header-cta-motion ml-auto shrink-0 px-4 sm:px-6",
-                isHeaderCompact ? "is-compact xl:pointer-events-none" : ""
-              )}
-            >
-              Get started
-            </Link>
+            <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+              <LanguageSwitcher />
+              <Link
+                href="/dashboard"
+                className={cn(
+                  buttonVariants({ size: "default" }),
+                  "header-cta header-cta-motion shrink-0 px-3 text-xs sm:px-6 sm:text-sm",
+                  isHeaderCompact ? "is-compact xl:pointer-events-none" : ""
+                )}
+              >
+                Get started
+              </Link>
+            </div>
           </nav>
         </header>
 

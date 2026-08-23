@@ -30,6 +30,7 @@ import {
 
 import { Button, buttonVariants } from "@/components/ui/button"
 import { DashboardAiChat } from "@/components/dashboard-ai-chat"
+import { LanguageSwitcher } from "@/components/language-switcher"
 import { VoiceWorkbench } from "@/components/voice-workbench"
 import {
   Field,
@@ -499,6 +500,7 @@ export function DashboardShell() {
               </div>
 
               <div className="ml-auto flex items-center gap-2">
+                <LanguageSwitcher />
                 <span className="hidden rounded-full border border-border/70 bg-background px-3 py-1 text-xs text-muted-foreground sm:inline-flex">
                   No password yet
                 </span>

@@ -2,9 +2,15 @@
 
 import { useEffect, useState } from "react"
 
-const words = ["words", "rhythm", "voice"]
+import { useLanguage } from "@/lib/i18n"
+
+const words = {
+  en: ["words", "rhythm", "voice"],
+  ru: ["словами", "ритмом", "голосом"],
+}
 
 export function RotatingHeroWord() {
+  const { locale } = useLanguage()
   const [index, setIndex] = useState(0)
   const [phase, setPhase] = useState<"enter" | "exit">("enter")
 
@@ -14,7 +20,7 @@ export function RotatingHeroWord() {
     }, 1500)
 
     const rotateTimer = window.setTimeout(() => {
-      setIndex((current) => (current + 1) % words.length)
+      setIndex((current) => (current + 1) % words[locale].length)
       setPhase("enter")
     }, 2000)
 
@@ -22,7 +28,7 @@ export function RotatingHeroWord() {
       window.clearTimeout(exitTimer)
       window.clearTimeout(rotateTimer)
     }
-  }, [index])
+  }, [index, locale])
 
   return (
     <>
@@ -33,10 +39,15 @@ export function RotatingHeroWord() {
         aria-hidden="true"
         className="inline-flex flex-col items-center lg:items-start"
       >
-        <span className="whitespace-nowrap">AI clone with your</span>
+        <span className="whitespace-nowrap">
+          {locale === "ru" ? "AI-клон с вашими" : "AI clone with your"}
+        </span>
         <span className="hero-word-window">
-          <span key={words[index]} className={`hero-word hero-word-${phase}`}>
-            {words[index]}.
+          <span
+            key={`${locale}-${words[locale][index]}`}
+            className={`hero-word hero-word-${phase}`}
+          >
+            {words[locale][index]}.
           </span>
         </span>
       </span>
