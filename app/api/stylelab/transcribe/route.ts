@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server"
 
+import { elevenLabsError, getElevenLabsApiKey } from "@/lib/stylelab/elevenlabs"
+
 export const runtime = "nodejs"
 
 export async function POST(request: Request) {
   try {
-    const key = process.env.ELEVENLABS_API_KEY
+    const key = getElevenLabsApiKey()
     if (!key) {
       return NextResponse.json(
         { error: "ELEVENLABS_API_KEY is not configured on the server." },
@@ -43,10 +45,11 @@ export async function POST(request: Request) {
     if (!response.ok) {
       return NextResponse.json(
         {
-          error:
-            payload?.detail?.message ||
-            payload?.message ||
-            `Transcription failed (${response.status}).`,
+          error: elevenLabsError(
+            response.status,
+            payload,
+            `Transcription failed (${response.status}).`
+          ),
         },
         { status: response.status }
       )

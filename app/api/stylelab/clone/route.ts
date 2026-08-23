@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server"
 
+import { elevenLabsError, getElevenLabsApiKey } from "@/lib/stylelab/elevenlabs"
+
 export const runtime = "nodejs"
 
 export async function POST(request: Request) {
   try {
-    const key = process.env.ELEVENLABS_API_KEY
+    const key = getElevenLabsApiKey()
     if (!key) {
       return NextResponse.json(
         { error: "Voice cloning is not configured on the server." },
@@ -42,10 +44,11 @@ export async function POST(request: Request) {
     if (!response.ok || !payload?.voice_id) {
       return NextResponse.json(
         {
-          error:
-            payload?.detail?.message ||
-            payload?.message ||
-            `Voice cloning failed (${response.status}).`,
+          error: elevenLabsError(
+            response.status,
+            payload,
+            `Voice cloning failed (${response.status}).`
+          ),
         },
         { status: response.status || 502 }
       )

@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server"
 
+import { elevenLabsError, getElevenLabsApiKey } from "@/lib/stylelab/elevenlabs"
+
 export const runtime = "nodejs"
 
 export async function POST(request: Request) {
   try {
-    const key = process.env.ELEVENLABS_API_KEY
+    const key = getElevenLabsApiKey()
     if (!key) {
       return NextResponse.json(
         { error: "Text to speech is not configured on the server." },
@@ -46,10 +48,11 @@ export async function POST(request: Request) {
       } | null
       return NextResponse.json(
         {
-          error:
-            payload?.detail?.message ||
-            payload?.message ||
-            `Speech generation failed (${response.status}).`,
+          error: elevenLabsError(
+            response.status,
+            payload,
+            `Speech generation failed (${response.status}).`
+          ),
         },
         { status: response.status }
       )

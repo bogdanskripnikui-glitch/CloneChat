@@ -229,6 +229,8 @@ const ru: Record<string, string> = {
   "Message AI clone": "Сообщение AI-клону",
   "The voice model did not return a reply.": "Модель голоса не ответила.",
   "The voice model is unavailable.": "Модель голоса недоступна.",
+  "Voice service authorization failed. Reconnect ElevenLabs and try again.":
+    "Не удалось подключиться к ElevenLabs. Обновите ключ и попробуйте снова.",
   "Writing…": "Пишу…",
   "Add a voice to enable playback": "Добавьте голос для озвучивания",
   "Generating speech": "Создаём озвучку",
