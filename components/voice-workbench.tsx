@@ -987,6 +987,9 @@ export function WritingModes({
   const [isRewriting, setIsRewriting] = useState(false)
   const [rewriteError, setRewriteError] = useState("")
   const sectionRef = useRef<HTMLElement>(null)
+  const rewriteRunRef = useRef(0)
+  const activeRewriteKeyRef = useRef("")
+  const completedRewriteKeyRef = useRef("")
 
   useEffect(() => {
     const node = sectionRef.current
@@ -1006,12 +1009,28 @@ export function WritingModes({
 
   useEffect(() => {
     const source = beforeText.trim()
-    if (!isVisible || !source || !savedProfile) {
+    if (!source || !savedProfile) {
       return
     }
 
-    const controller = new AbortController()
     const timer = window.setTimeout(async () => {
+      const requestKey = JSON.stringify([
+        source,
+        outputKind,
+        locale,
+        savedProfile,
+      ])
+      if (
+        activeRewriteKeyRef.current === requestKey ||
+        completedRewriteKeyRef.current === requestKey
+      ) {
+        return
+      }
+
+      activeRewriteKeyRef.current = requestKey
+      const runId = ++rewriteRunRef.current
+      const timeoutController = new AbortController()
+      const timeout = window.setTimeout(() => timeoutController.abort(), 65_000)
       setIsRewriting(true)
       setRewriteError("")
       try {
@@ -1024,7 +1043,7 @@ export function WritingModes({
             language: locale === "ru" ? "Russian" : "English",
             profile: savedProfile,
           }),
-          signal: controller.signal,
+          signal: timeoutController.signal,
         })
         const payload = (await response.json()) as {
           text?: string
@@ -1035,26 +1054,35 @@ export function WritingModes({
             payload.error || "The model did not return a rewrite."
           )
         }
+        if (runId !== rewriteRunRef.current) return
+        completedRewriteKeyRef.current = requestKey
         setRewrittenText(payload.text.trim())
       } catch (error) {
-        if (controller.signal.aborted) return
+        if (runId !== rewriteRunRef.current) return
         setRewriteError(
-          error instanceof Error
+          timeoutController.signal.aborted
+            ? locale === "ru"
+              ? "Рерайтинг занял слишком много времени. Попробуйте ещё раз."
+              : "Rewriting took too long. Please try again."
+            : error instanceof Error
             ? error.message
             : locale === "ru"
               ? "Не удалось переписать текст."
               : "Could not rewrite the text."
         )
       } finally {
-        if (!controller.signal.aborted) setIsRewriting(false)
+        window.clearTimeout(timeout)
+        if (activeRewriteKeyRef.current === requestKey) {
+          activeRewriteKeyRef.current = ""
+        }
+        if (runId === rewriteRunRef.current) setIsRewriting(false)
       }
     }, 600)
 
     return () => {
       window.clearTimeout(timer)
-      controller.abort()
     }
-  }, [beforeText, isVisible, locale, outputKind, savedProfile])
+  }, [beforeText, locale, outputKind, savedProfile])
 
   const rewriteDisplay = !savedProfile
     ? locale === "ru"
@@ -1137,7 +1165,17 @@ export function WritingModes({
 
                   <div className="grid min-h-0 grid-cols-1 items-center gap-2 sm:gap-3 lg:grid-cols-[minmax(0,0.94fr)_2rem_minmax(0,1.06fr)] lg:gap-4">
                     <article className="screen-shift screen-shift-visible screen-shift-delay-1 flex h-38 min-h-0 flex-col rounded-2xl bg-background p-4 sm:h-56 sm:p-5 lg:h-[22rem] lg:p-6">
-                      <p className="text-sm font-medium">Before</p>
+                      <div className="flex items-center justify-between gap-4">
+                        <p className="text-sm font-medium">Before</p>
+                        {beforeText.trim() ? (
+                          <div className="flex items-center gap-1">
+                            <VoicePlaybackButton
+                              text={beforeText}
+                              onRequestVoice={onRequestVoice}
+                            />
+                          </div>
+                        ) : null}
+                      </div>
                       <Textarea
                         aria-label="Text to rewrite"
                         value={beforeText}
@@ -1240,6 +1278,7 @@ export function WritingModes({
                       <p
                         aria-live="polite"
                         role={rewriteError ? "alert" : undefined}
+                        translate="no"
                         className={cn(
                           "mt-3 min-h-0 flex-1 overflow-y-auto pr-1 text-sm leading-relaxed whitespace-pre-wrap sm:mt-5 sm:text-base",
                           rewriteError

@@ -549,10 +549,17 @@ export function VoiceCloneChat({
             </span>
             <div>
               <p className="text-sm font-medium">Your AI clone</p>
-              <p className="mt-0.5 text-xs text-muted-foreground">
+              <p
+                className="mt-0.5 text-xs text-muted-foreground"
+                translate="no"
+              >
                 {savedProfile
-                  ? `${savedProfile.name} · ready`
-                  : "Profile not added"}
+                  ? locale === "ru"
+                    ? `${savedProfile.name} · готов`
+                    : `${savedProfile.name} · ready`
+                  : locale === "ru"
+                    ? "Профиль не добавлен"
+                    : "Profile not added"}
               </p>
             </div>
             <span
@@ -586,7 +593,9 @@ export function VoiceCloneChat({
                         : "bg-muted/58 text-foreground"
                     )}
                   >
-                    {message.text ? <p>{message.text}</p> : null}
+                    {message.text ? (
+                      <p translate="no">{message.text}</p>
+                    ) : null}
                     {message.attachments?.length ? (
                       <div
                         className={cn(
