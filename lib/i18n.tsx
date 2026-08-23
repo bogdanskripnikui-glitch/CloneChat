@@ -236,7 +236,9 @@ const ru: Record<string, string> = {
     "Не удалось подключиться к ElevenLabs. Обновите ключ и попробуйте снова.",
   "Writing…": "Пишу…",
   "Add a voice to enable playback": "Добавьте голос для озвучивания",
+  "Add a voice to enable download": "Добавьте голос для скачивания",
   "Generating speech": "Создаём озвучку",
+  "Generating audio file": "Создаём аудиофайл",
   "Stop playback": "Остановить воспроизведение",
   "Text to rewrite": "Текст для переписывания",
   "Output format": "Формат результата",
@@ -265,6 +267,10 @@ function translateDynamic(text: string): string {
   if (characters) return `${characters[1]} символов`
   const recorded = text.match(/^Recorded (.+)$/)
   if (recorded) return `Записано ${recorded[1]}`
+  const playWith = text.match(/^Play with (.+)$/)
+  if (playWith) return `Воспроизвести голосом «${playWith[1]}»`
+  const downloadWith = text.match(/^Download audio with (.+)$/)
+  if (downloadWith) return `Скачать аудио голосом «${downloadWith[1]}»`
   const useVoice = text.match(/^Use (.+)$/)
   if (useVoice) return `Использовать ${translateDynamic(useVoice[1])}`
   const moreActions = text.match(/^More actions for (.+)$/)
