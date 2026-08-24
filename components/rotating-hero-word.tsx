@@ -34,7 +34,7 @@ export function RotatingHeroWord() {
     <>
       <span className="sr-only">
         {locale === "ru"
-          ? "С вашим ритмом, стилем и голосом."
+          ? "ИИ-клон с вашим ритмом, стилем и голосом."
           : "AI clone with your words, rhythm, and voice."}
       </span>
       <span
@@ -42,7 +42,7 @@ export function RotatingHeroWord() {
         className="inline-flex flex-col items-center lg:items-start"
       >
         <span className="whitespace-nowrap">
-          {locale === "ru" ? "С вашим" : "AI clone with your"}
+          {locale === "ru" ? "ИИ-клон с вашим" : "AI clone with your"}
         </span>
         <span className="hero-word-window">
           <span
