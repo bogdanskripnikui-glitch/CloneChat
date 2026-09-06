@@ -6,6 +6,10 @@ import { ArrowRightIcon, SparklesIcon } from "lucide-react"
 
 import { FooterSection, PricingSection } from "@/components/landing-sections"
 import { LanguageSwitcher } from "@/components/language-switcher"
+import {
+  MobileAppSection,
+  WebAppSection,
+} from "@/components/product-platform-sections"
 import { RotatingHeroWord } from "@/components/rotating-hero-word"
 import { VoiceCloneChat } from "@/components/voice-clone-chat"
 import { VoiceFlowDiagram } from "@/components/voice-flow-diagram"
@@ -21,6 +25,8 @@ const navigation = [
   { label: "Train your voice", href: "#voice-training" },
   { label: "AI clone", href: "#ai-clone" },
   { label: "Writing modes", href: "#how-it-works" },
+  { label: "iOS app", href: "#mobile-app" },
+  { label: "Web app", href: "#web-app" },
   { label: "Pricing", href: "#pricing" },
   { label: "Get in touch", href: "#footer-cta" },
 ]
@@ -352,7 +358,7 @@ export default function Page() {
                         ? "is-forward"
                         : "is-backward",
                     ]
-                  : "items-center justify-center gap-8"
+                  : "items-center justify-center gap-4 2xl:gap-5"
               )}
             >
               {navigation.map((item, index) => (
@@ -361,7 +367,7 @@ export default function Page() {
                   href={item.href}
                   onClick={(event) => handleMenuClick(event, item.href)}
                   className={cn(
-                    "header-nav-link text-[0.95rem] transition-[color,opacity,transform] duration-200 hover:text-foreground focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring",
+                    "header-nav-link text-[0.86rem] transition-[color,opacity,transform] duration-200 hover:text-foreground focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring 2xl:text-[0.92rem]",
                     isHeaderCompact
                       ? [
                           activeNavHref === item.href ? "is-active" : "",
@@ -446,6 +452,8 @@ export default function Page() {
       />
       <VoiceCloneChat onRequestVoice={requestVoiceUpload} />
       <WritingModes onRequestVoice={requestVoiceUpload} />
+      <MobileAppSection />
+      <WebAppSection />
       <PricingSection onNavigate={navigateToSection} />
       <FooterSection onNavigate={navigateToSection} />
     </main>

@@ -25,6 +25,8 @@ const ru: Record<string, string> = {
   "Train your voice": "Обучить голос",
   "AI clone": "AI-клон",
   "Writing modes": "Режимы текста",
+  "iOS app": "iOS",
+  "Web app": "Web",
   Pricing: "Тарифы",
   "Get in touch": "Связаться",
   "Get started": "Начать",
@@ -183,6 +185,37 @@ const ru: Record<string, string> = {
   Article: "Статья",
   Reply: "Ответ",
   "Your rhythm stays intact": "Ваш ритм сохраняется",
+  "VOXFORM for iOS": "VOXFORM для iOS",
+  "Your voice, in your pocket.": "Ваш стиль — всегда под рукой.",
+  "VOXFORM iOS Create screen with Outline, Rewrite, Stylize, and Answer modes":
+    "Экран Create приложения VOXFORM для iOS с режимами плана, рерайта, стилизации и ответа",
+  "Build a voice profile from the words you already use, then create posts, rewrite drafts, and answer messages in your own style.":
+    "Создайте профиль из привычных слов, а затем пишите посты, переписывайте черновики и отвечайте на сообщения в своей манере.",
+  "Train from real material": "Обучайте на реальных материалах",
+  "Files, Telegram chats, answers, and phrase choices.":
+    "Файлы, чаты Telegram, ответы и выбор фраз.",
+  "A separate voice for every role": "Отдельный профиль для каждой роли",
+  "Each profile keeps its own chat history and style.":
+    "У каждого профиля своя история чата и стиль.",
+  "Create in your style": "Создавайте в своей манере",
+  "Outline, rewrite, stylize, or answer from one screen.":
+    "Планы, рерайт, стилизация и ответы на одном экране.",
+  "VOXFORM for Web": "VOXFORM для Web",
+  "One workspace for every version of you.":
+    "Одно пространство для каждой вашей роли.",
+  "VOXFORM Web profile library with Personal, Work, and Public voices":
+    "Библиотека профилей VOXFORM Web с личным, рабочим и публичным стилями",
+  "Manage distinct style profiles, add source material, chat with AI, generate text, and turn a trained voice into audio from one focused workspace.":
+    "Управляйте профилями, добавляйте материалы, общайтесь с AI, создавайте тексты и озвучивайте их обученным голосом в одном пространстве.",
+  "Profiles and source library": "Профили и библиотека материалов",
+  "Keep personal, work, and public voices separate.":
+    "Разделяйте личный, рабочий и публичный стиль.",
+  "Chat and text generation": "Чат и генерация текстов",
+  "Write, adapt, and continue conversations with AI.":
+    "Пишите, адаптируйте и продолжайте разговоры с AI.",
+  "Voice and integrations": "Голос и интеграции",
+  "Clone speech and connect the providers you already use.":
+    "Клонируйте речь и подключайте привычные сервисы.",
   "Paste text, files, or docs": "Текст, файлы или документы",
   "We are excited to announce the launch of our new platform that helps teams improve productivity and streamline workflows across departments.":
     "Мы рады объявить о запуске новой платформы, которая помогает командам работать продуктивнее и упрощает процессы.",
