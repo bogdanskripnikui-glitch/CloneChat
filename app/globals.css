@@ -555,6 +555,18 @@
   );
 }
 
+.platform-desktop-bezel-cleanup {
+  position: absolute;
+  z-index: 1;
+  top: 11.9%;
+  right: 1.2%;
+  left: 10.2%;
+  height: 3px;
+  border-radius: 999px;
+  background: #111216;
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.08);
+}
+
 .platform-floating-card {
   opacity: 0;
   transform: translate3d(0, 12px, 0) scale(0.97);

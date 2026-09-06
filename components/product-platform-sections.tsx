@@ -270,14 +270,17 @@ function PlatformSection({
                   </div>
                 </div>
               ) : (
-                <Image
-                  src={image}
-                  alt={imageAlt}
-                  fill
-                  loading="lazy"
-                  sizes="(max-width: 767px) 94vw, (max-width: 1200px) 54vw, 900px"
-                  className="platform-desktop-fade block object-contain"
-                />
+                <div className="platform-desktop-fade absolute inset-0">
+                  <Image
+                    src={image}
+                    alt={imageAlt}
+                    fill
+                    loading="lazy"
+                    sizes="(max-width: 767px) 94vw, (max-width: 1200px) 54vw, 900px"
+                    className="block object-contain"
+                  />
+                  <span className="platform-desktop-bezel-cleanup" aria-hidden="true" />
+                </div>
               )}
             </div>
 
