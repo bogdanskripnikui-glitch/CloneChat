@@ -216,7 +216,11 @@ function PlatformSection({
                           : "bg-white text-foreground shadow-[0_10px_30px_rgba(29,30,34,0.06)]"
                       )}
                     >
-                      <Icon aria-hidden="true" strokeWidth={1.7} className="size-5" />
+                      <Icon
+                        aria-hidden="true"
+                        strokeWidth={1.7}
+                        className="size-5"
+                      />
                     </span>
                     <div className="min-w-0">
                       <h3 className="text-[0.98rem] leading-tight font-medium">
@@ -257,7 +261,7 @@ function PlatformSection({
               )}
             >
               {imageKind === "phone" ? (
-                <div className="platform-phone-fade relative mx-auto h-full w-auto max-w-full aspect-[1206/2622]">
+                <div className="platform-phone-fade relative mx-auto aspect-[1206/2622] h-full w-auto max-w-full">
                   <div className="platform-phone-shell absolute inset-0 overflow-hidden">
                     <Image
                       src={image}
@@ -279,13 +283,19 @@ function PlatformSection({
                     sizes="(max-width: 767px) 94vw, (max-width: 1200px) 54vw, 900px"
                     className="block object-contain"
                   />
-                  <span className="platform-desktop-bezel-cleanup" aria-hidden="true" />
+                  <span
+                    className="platform-desktop-bezel-cleanup"
+                    aria-hidden="true"
+                  />
                 </div>
               )}
             </div>
 
             {imageKind === "phone" && (
-              <div className="pointer-events-none absolute inset-0 z-10" aria-hidden="true">
+              <div
+                className="pointer-events-none absolute inset-0 z-10"
+                aria-hidden="true"
+              >
                 {floatingMobileFeatures.map((feature) => {
                   const Icon = feature.icon
 
@@ -302,14 +312,17 @@ function PlatformSection({
                         <Icon className="size-5" strokeWidth={1.7} />
                       </span>
                       <span className="min-w-0">
-                        <strong className="block whitespace-nowrap text-sm leading-tight font-medium">
+                        <strong className="block text-sm leading-tight font-medium whitespace-nowrap">
                           {feature.title}
                         </strong>
-                        <span className="mt-1 block whitespace-nowrap text-xs leading-tight text-muted-foreground">
+                        <span className="mt-1 block text-xs leading-tight whitespace-nowrap text-muted-foreground">
                           {feature.description}
                         </span>
                       </span>
-                      <ArrowRightIcon className="ml-1 size-4 shrink-0 text-muted-foreground" strokeWidth={1.7} />
+                      <ArrowRightIcon
+                        className="ml-1 size-4 shrink-0 text-muted-foreground"
+                        strokeWidth={1.7}
+                      />
                     </div>
                   )
                 })}
@@ -317,7 +330,10 @@ function PlatformSection({
             )}
 
             {imageKind === "desktop" && (
-              <div className="pointer-events-none absolute inset-0 z-10" aria-hidden="true">
+              <div
+                className="pointer-events-none absolute inset-0 z-10"
+                aria-hidden="true"
+              >
                 {floatingDesktopFeatures.map((feature) => {
                   const Icon = feature.icon
 
@@ -334,14 +350,17 @@ function PlatformSection({
                         <Icon className="size-5" strokeWidth={1.7} />
                       </span>
                       <span className="min-w-0">
-                        <strong className="block whitespace-nowrap text-sm leading-tight font-medium">
+                        <strong className="block text-sm leading-tight font-medium whitespace-nowrap">
                           {feature.title}
                         </strong>
-                        <span className="mt-1 block whitespace-nowrap text-xs leading-tight text-muted-foreground">
+                        <span className="mt-1 block text-xs leading-tight whitespace-nowrap text-muted-foreground">
                           {feature.description}
                         </span>
                       </span>
-                      <ArrowRightIcon className="ml-1 size-4 shrink-0 text-muted-foreground" strokeWidth={1.7} />
+                      <ArrowRightIcon
+                        className="ml-1 size-4 shrink-0 text-muted-foreground"
+                        strokeWidth={1.7}
+                      />
                     </div>
                   )
                 })}
@@ -359,11 +378,11 @@ export function MobileAppSection() {
     <PlatformSection
       id="mobile-app"
       titleId="mobile-app-title"
-      label="VOXFORM for iOS"
+      label="Youmanize for iOS"
       title="Your voice, in your pocket."
       description="Build a voice profile from the words you already use, then create posts, rewrite drafts, and answer messages in your own style."
       image="/voxform-ios-profiles-current.png"
-      imageAlt="VOXFORM iOS Profiles screen with voice profile progress and training sources"
+      imageAlt="Youmanize iOS Profiles screen with voice profile progress and training sources"
       imageKind="phone"
       features={mobileFeatures}
     />
@@ -375,11 +394,11 @@ export function WebAppSection() {
     <PlatformSection
       id="web-app"
       titleId="web-app-title"
-      label="VOXFORM for Web"
+      label="Youmanize for Web"
       title="One workspace for every version of you."
       description="Manage distinct style profiles, add source material, chat with AI, generate text, and turn a trained voice into audio from one focused workspace."
       image="/voxform-web-cutout-4k.png"
-      imageAlt="VOXFORM Web profile library with Personal, Work, and Public voices"
+      imageAlt="Youmanize Web profile library with Personal, Work, and Public voices"
       imageKind="desktop"
       features={webFeatures}
       dark

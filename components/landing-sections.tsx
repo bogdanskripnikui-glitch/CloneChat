@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { ArrowRightIcon, ArrowUpIcon, CheckIcon, CrownIcon } from "lucide-react"
+import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -14,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useLanguage } from "@/lib/i18n"
+import { SiteLegalFooter } from "@/components/site-legal-footer"
 
 function useSectionVisible(threshold = 0.45) {
   const [isVisible, setIsVisible] = useState(false)
@@ -345,9 +347,9 @@ export function FooterSection({
       ref={ref}
       id="footer-cta"
       aria-labelledby="footer-title"
-      className="flex h-[100svh] min-h-0 snap-start snap-always items-stretch overflow-hidden bg-primary text-primary-foreground"
+      className="relative flex h-[100svh] min-h-0 snap-start snap-always items-stretch overflow-hidden bg-primary text-primary-foreground"
     >
-      <div className="mobile-section-safe mx-auto flex h-full min-h-0 w-full max-w-[1440px] flex-col justify-center px-4 pt-20 pb-4 sm:px-5 sm:py-8 xl:px-8 xl:pt-32 xl:pb-8">
+      <div className="mobile-section-safe mx-auto flex h-full min-h-0 w-full max-w-[1440px] flex-col justify-center px-4 pt-20 pb-20 sm:px-5 sm:pt-20 sm:pb-24 xl:px-8 xl:pt-32 xl:pb-24">
         <div className="grid min-h-0 gap-8 xl:grid-cols-[minmax(20rem,0.76fr)_minmax(32rem,1.24fr)] xl:items-center xl:gap-12">
           <div
             className={`screen-shift flex h-full items-center ${
@@ -503,9 +505,11 @@ export function FooterSection({
             className="relative hidden min-h-[36rem] items-center justify-center overflow-visible xl:flex"
           >
             <div className="absolute inset-x-[14%] top-1/2 h-[62%] -translate-y-1/2 rounded-full bg-white/[0.05] blur-3xl" />
-            <img
-              src="/voxform-phone.png"
+            <Image
+              src="/voxform-ios-profiles-current.png"
               alt=""
+              width={800}
+              height={1730}
               className={`relative h-[min(72vh,48rem)] w-auto max-w-none object-contain transition-[transform,opacity] duration-700 ease-out motion-reduce:transition-none ${
                 isVisible
                   ? "translate-y-0 opacity-100"
@@ -514,6 +518,9 @@ export function FooterSection({
             />
           </div>
         </div>
+      </div>
+      <div className="absolute inset-x-0 bottom-0 z-10 bg-primary">
+        <SiteLegalFooter inverse />
       </div>
     </section>
   )

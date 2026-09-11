@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
     const incoming = await request.formData()
     const file = incoming.get("file")
-    const name = String(incoming.get("name") || "Voxform voice").slice(0, 80)
+    const name = String(incoming.get("name") || "Youmanize voice").slice(0, 80)
 
     if (!(file instanceof File) || file.size === 0) {
       return NextResponse.json(
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     const form = new FormData()
     form.append("files", file, file.name || "voice-sample.webm")
     form.set("name", name)
-    form.set("description", "Voice clone created with Voxform")
+    form.set("description", "Voice clone created with Youmanize")
 
     const response = await fetch("https://api.elevenlabs.io/v1/voices/add", {
       method: "POST",

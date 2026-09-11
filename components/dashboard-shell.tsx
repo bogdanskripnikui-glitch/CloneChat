@@ -100,7 +100,7 @@ const outputTemplates: Record<
     eyebrow: "Article intro",
     title: "Why voice consistency matters more than raw generation speed",
     icon: FileTextIcon,
-    transform: (source, voice) =>
+    transform: (source) =>
       `${source.trim()}\n\nSpeed alone does not make AI writing useful. The real difference is whether output still feels authored — with your pacing, vocabulary, and intent intact.`,
   },
   reply: {
@@ -114,7 +114,7 @@ const outputTemplates: Record<
 }
 
 const initialDraft =
-  "We are launching the next version of Voxform. It should sound clear, human, and useful. The message needs to work for a product update, an email, and a short direct message without losing the person behind the writing."
+  "We are launching the next version of Youmanize. It should sound clear, human, and useful. The message needs to work for a product update, an email, and a short direct message without losing the person behind the writing."
 
 const railItems = [
   { value: "dashboard", icon: LayoutDashboardIcon, label: "Dashboard" },
@@ -429,7 +429,7 @@ export function DashboardShell() {
     const url = URL.createObjectURL(blob)
     const anchor = document.createElement("a")
     anchor.href = url
-    anchor.download = `voxform-${outputKind}.txt`
+    anchor.download = `youmanize-${outputKind}.txt`
     anchor.click()
     URL.revokeObjectURL(url)
     setSavedCount((current) => current + 1)
@@ -491,7 +491,7 @@ export function DashboardShell() {
                 </span>
                 <div className="min-w-0">
                   <p className="text-[0.96rem] font-semibold tracking-[-0.03em]">
-                    VOXFORM
+                    Youmanize
                   </p>
                   <p className="text-xs text-muted-foreground">
                     Dashboard preview
@@ -538,7 +538,7 @@ export function DashboardShell() {
                               Menu
                             </Dialog.Title>
                             <Dialog.Description className="mt-0.5 text-xs text-muted-foreground">
-                              Voxform dashboard
+                              Youmanize dashboard
                             </Dialog.Description>
                           </div>
                           <Dialog.Close
@@ -1203,7 +1203,7 @@ export function DashboardShell() {
                         </FieldLabel>
                         <Input
                           id="dashboard-name"
-                          defaultValue="Voxform preview"
+                          defaultValue="Youmanize preview"
                         />
                       </Field>
                       <Field>

@@ -18,7 +18,7 @@ const LANGUAGE_EVENT = "voxform-language-change"
 const ru: Record<string, string> = {
   "Skip to content": "Перейти к содержимому",
   "Primary navigation": "Основная навигация",
-  "Voxform home": "Главная Voxform",
+  "Youmanize home": "Главная Youmanize",
   Language: "Язык",
   English: "Английский",
   "Your voice": "Ваш голос",
@@ -44,8 +44,8 @@ const ru: Record<string, string> = {
   "Add your writing once. Create messages, posts, and articles that still sound unmistakably like you.":
     "Добавьте свои тексты один раз. Создавайте сообщения, посты и статьи, которые звучат именно как вы.",
   "Give it something unmistakably yours.": "Дайте ему что-то безошибочно ваше.",
-  "Add a few paragraphs, a file, or existing writing. Voxform learns your rhythm, vocabulary, and level of directness before creating a single draft.":
-    "Добавьте несколько абзацев, файл или готовый текст. Voxform изучит ваш ритм, словарь и манеру общения.",
+  "Add a few paragraphs, a file, or existing writing. Youmanize learns your rhythm, vocabulary, and level of directness before creating a single draft.":
+    "Добавьте несколько абзацев, файл или готовый текст. Youmanize изучит ваш ритм, словарь и манеру общения.",
   "Teach AI how you write": "Научите AI писать как вы",
   "Start with a few paragraphs. You can refine your voice later.":
     "Начните с нескольких абзацев. Позже голос можно уточнить.",
@@ -185,10 +185,10 @@ const ru: Record<string, string> = {
   Article: "Статья",
   Reply: "Ответ",
   "Your rhythm stays intact": "Ваш ритм сохраняется",
-  "VOXFORM for iOS": "VOXFORM для iOS",
+  "Youmanize for iOS": "Youmanize для iOS",
   "Your voice, in your pocket.": "Ваш стиль — всегда под рукой.",
-  "VOXFORM iOS Create screen with Outline, Rewrite, Stylize, and Answer modes":
-    "Экран Create приложения VOXFORM для iOS с режимами плана, рерайта, стилизации и ответа",
+  "Youmanize iOS Profiles screen with voice profile progress and training sources":
+    "Экран профилей Youmanize для iOS с прогрессом профиля голоса и источниками обучения",
   "Build a voice profile from the words you already use, then create posts, rewrite drafts, and answer messages in your own style.":
     "Создайте профиль из привычных слов, а затем пишите посты, переписывайте черновики и отвечайте на сообщения в своей манере.",
   "Train from real material": "Обучайте на реальных материалах",
@@ -200,11 +200,11 @@ const ru: Record<string, string> = {
   "Create in your style": "Создавайте в своей манере",
   "Outline, rewrite, stylize, or answer from one screen.":
     "Планы, рерайт, стилизация и ответы на одном экране.",
-  "VOXFORM for Web": "VOXFORM для Web",
+  "Youmanize for Web": "Youmanize для Web",
   "One workspace for every version of you.":
     "Одно пространство для каждой вашей роли.",
-  "VOXFORM Web profile library with Personal, Work, and Public voices":
-    "Библиотека профилей VOXFORM Web с личным, рабочим и публичным стилями",
+  "Youmanize Web profile library with Personal, Work, and Public voices":
+    "Библиотека профилей Youmanize Web с личным, рабочим и публичным стилями",
   "Manage distinct style profiles, add source material, chat with AI, generate text, and turn a trained voice into audio from one focused workspace.":
     "Управляйте профилями, добавляйте материалы, общайтесь с AI, создавайте тексты и озвучивайте их обученным голосом в одном пространстве.",
   "Profiles and source library": "Профили и библиотека материалов",
@@ -301,8 +301,8 @@ const ru: Record<string, string> = {
   "Launch post": "Пост о запуске",
   "A cleaner way to scale your writing without losing your voice":
     "Простой способ масштабировать тексты, не теряя свой голос",
-  "Most AI writing tools flatten people into the same tone. Founder voice keeps the opposite promise. We are launching the next version of Voxform. It should sound clear, human, and useful. The message needs to work for a product update, an email, and a short direct message without losing the person behind the writing. The point lands faster, the tone stays composed, and the message keeps its human cadence.":
-    "Большинство AI-инструментов делают всех одинаковыми. Голос основателя сохраняет индивидуальность. Мы запускаем новую версию Voxform — ясную, живую и полезную для поста, письма или короткого сообщения. Суть звучит быстрее, а человеческий ритм остаётся.",
+  "Most AI writing tools flatten people into the same tone. Founder voice keeps the opposite promise. We are launching the next version of Youmanize. It should sound clear, human, and useful. The message needs to work for a product update, an email, and a short direct message without losing the person behind the writing. The point lands faster, the tone stays composed, and the message keeps its human cadence.":
+    "Большинство AI-инструментов делают всех одинаковыми. Голос основателя сохраняет индивидуальность. Мы запускаем новую версию Youmanize — ясную, живую и полезную для поста, письма или короткого сообщения. Суть звучит быстрее, а человеческий ритм остаётся.",
   "Refine my samples": "Уточнить примеры",
   "Unlock more outputs": "Открыть больше форматов",
   "AI chat": "AI-чат",
@@ -332,7 +332,11 @@ const ru: Record<string, string> = {
   "Start free. Upgrade when the voice becomes mission-critical.":
     "Начните бесплатно. Обновитесь, когда голос станет важен для работы.",
   "Prepare account controls.": "Настройте параметры аккаунта.",
-  "Voxform preview": "Предпросмотр Voxform",
+  "Youmanize preview": "Предпросмотр Youmanize",
+  "Privacy Policy": "Политика конфиденциальности",
+  "Terms of Use": "Условия использования",
+  Support: "Поддержка",
+  "Data deletion": "Удаление данных",
   "Login layer later": "Вход появится позже",
   "Google auth coming soon": "Вход через Google скоро появится",
   "Login, theme, and team controls will live here.":
@@ -455,11 +459,20 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    document.documentElement.lang = locale
-    document.title =
-      locale === "ru"
-        ? "Voxform — Пишите как вы"
-        : "Voxform — Write like yourself"
+    const englishOnlyRoute = [
+      "/privacy",
+      "/terms",
+      "/support",
+      "/data-deletion",
+    ].includes(window.location.pathname)
+
+    document.documentElement.lang = englishOnlyRoute ? "en" : locale
+    if (!englishOnlyRoute) {
+      document.title =
+        locale === "ru"
+          ? "Youmanize — Пишите как вы"
+          : "Youmanize — Write like yourself"
+    }
     translateTree(document.body)
 
     const observer = new MutationObserver((mutations) => {

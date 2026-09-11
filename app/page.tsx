@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 
-import { ArrowRightIcon, SparklesIcon } from "lucide-react"
+import { ArrowRightIcon } from "lucide-react"
 
 import { FooterSection, PricingSection } from "@/components/landing-sections"
 import { LanguageSwitcher } from "@/components/language-switcher"
@@ -11,6 +11,7 @@ import {
   WebAppSection,
 } from "@/components/product-platform-sections"
 import { RotatingHeroWord } from "@/components/rotating-hero-word"
+import { BrandLockup } from "@/components/site-brand"
 import { VoiceCloneChat } from "@/components/voice-clone-chat"
 import { VoiceFlowDiagram } from "@/components/voice-flow-diagram"
 import { VoiceTrainingSection } from "@/components/voice-training-section"
@@ -328,7 +329,9 @@ export default function Page() {
           >
             <a
               href="#main-content"
-              aria-label={locale === "ru" ? "Главная Voxform" : "Voxform home"}
+              aria-label={
+                locale === "ru" ? "Главная Youmanize" : "Youmanize home"
+              }
               translate="no"
               className={cn(
                 "header-brand header-brand-motion flex min-h-11 shrink-0 items-center gap-2 sm:gap-3",
@@ -336,16 +339,11 @@ export default function Page() {
               )}
               onClick={(event) => handleMenuClick(event, "#main-content")}
             >
-              <span className="flex size-8 items-center justify-center rounded-[10px] bg-primary text-primary-foreground sm:size-9 sm:rounded-[12px]">
-                <SparklesIcon
-                  aria-hidden="true"
-                  strokeWidth={1.8}
-                  className="size-4.5"
-                />
-              </span>
-              <span className="text-base font-semibold tracking-[-0.03em] sm:text-[1.05rem]">
-                VOXFORM
-              </span>
+              <BrandLockup
+                compact
+                className="text-base sm:text-[1.05rem]"
+                markClassName="sm:size-9 sm:rounded-[12px]"
+              />
             </a>
 
             <div

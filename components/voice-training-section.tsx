@@ -47,7 +47,7 @@ export function VoiceTrainingSection({
             Give it something unmistakably yours.
           </h2>
           <p className="mt-5 max-w-[30rem] text-lg leading-relaxed text-pretty text-muted-foreground">
-            Add a few paragraphs, a file, or existing writing. Voxform learns
+            Add a few paragraphs, a file, or existing writing. Youmanize learns
             your rhythm, vocabulary, and level of directness before creating a
             single draft.
           </p>

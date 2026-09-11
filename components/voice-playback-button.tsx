@@ -112,7 +112,7 @@ export function VoicePlaybackButton({
           .replace(/^-|-$/g, "") || "voice"
       const link = document.createElement("a")
       link.href = url
-      link.download = `voxform-${safeVoiceName}.mp3`
+      link.download = `youmanize-${safeVoiceName}.mp3`
       document.body.appendChild(link)
       link.click()
       link.remove()
