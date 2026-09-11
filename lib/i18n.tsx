@@ -27,7 +27,6 @@ const ru: Record<string, string> = {
   "Writing modes": "Режимы текста",
   "iOS app": "iOS",
   "Web app": "Web",
-  Pricing: "Тарифы",
   "Get in touch": "Связаться",
   "Get started": "Начать",
   "Start with my voice": "Начать с моего голоса",
@@ -54,6 +53,12 @@ const ru: Record<string, string> = {
   Voice: "Голос",
   "Upload file": "Загрузить файл",
   "Other sources": "Другие источники",
+  "Message archive": "Архив сообщений",
+  "Imported from your messages": "Импортировано из ваших сообщений",
+  "Import a public URL, message archive, or document source.":
+    "Импортируйте публичную ссылку, архив сообщений или документ.",
+  "Load exported messages and learn your conversational rhythm.":
+    "Загрузите экспорт сообщений, чтобы изучить ваш ритм общения.",
   "Your writing samples": "Примеры ваших текстов",
   "Use text you wrote yourself. More variety produces a better voice profile.":
     "Используйте собственные тексты. Разнообразие улучшает профиль голоса.",
@@ -192,8 +197,8 @@ const ru: Record<string, string> = {
   "Build a voice profile from the words you already use, then create posts, rewrite drafts, and answer messages in your own style.":
     "Создайте профиль из привычных слов, а затем пишите посты, переписывайте черновики и отвечайте на сообщения в своей манере.",
   "Train from real material": "Обучайте на реальных материалах",
-  "Files, Telegram chats, answers, and phrase choices.":
-    "Файлы, чаты Telegram, ответы и выбор фраз.",
+  "Files, notes, answers, and phrase choices.":
+    "Файлы, заметки, ответы и выбор фраз.",
   "A separate voice for every role": "Отдельный профиль для каждой роли",
   "Each profile keeps its own chat history and style.":
     "У каждого профиля своя история чата и стиль.",
@@ -221,60 +226,15 @@ const ru: Record<string, string> = {
     "Мы рады объявить о запуске новой платформы, которая помогает командам работать продуктивнее и упрощает процессы.",
   "We are excited to announce the launch of our new platform that helps teams improve productivity and streamline workflows across departments. The point lands faster, the tone stays composed, and the message still sounds recognisably like you.":
     "Мы запускаем новую платформу, которая помогает командам работать продуктивнее и упрощает процессы. Суть звучит быстрее, тон остаётся спокойным, а текст — узнаваемо вашим.",
-  "Start free. Upgrade anytime.": "Начните бесплатно. Обновитесь позже.",
-  "Start free.": "Начните бесплатно.",
-  "Upgrade anytime.": "Обновитесь позже.",
-  "Billing cycle": "Период оплаты",
-  "The free tier proves the voice fit. Paid plans unlock Telegram imports, more modes, unlimited drafts, and collaborative review.":
-    "Бесплатный тариф покажет точность голоса. Платные планы откроют импорт Telegram, дополнительные режимы и совместную работу.",
-  Monthly: "Ежемесячно",
-  Yearly: "Ежегодно",
-  Free: "Бесплатно",
-  Pro: "Про",
-  Teams: "Команды",
-  "for first analysis": "за первый анализ",
-  "per month": "в месяц",
-  "per workspace": "за рабочее пространство",
-  "always free": "всегда бесплатно",
-  "per year": "в год",
-  "per year · save 21%": "в год · экономия 21%",
-  "Start free": "Начать бесплатно",
-  "Join Pro waitlist": "В лист ожидания Pro",
-  "Request access": "Запросить доступ",
-  "Try the core workflow without an account.":
-    "Попробуйте основной сценарий без аккаунта.",
-  "1 voice profile": "1 профиль голоса",
-  "5 generations per week": "5 генераций в неделю",
-  "Paste text and file upload": "Вставка текста и загрузка файлов",
-  "Most wanted": "Популярный",
-  "For creators and operators who need daily output.":
-    "Для авторов и специалистов, которым тексты нужны каждый день.",
-  "Unlimited generations": "Безлимитные генерации",
-  "Telegram chat imports": "Импорт чатов Telegram",
-  "Separate business and casual modes": "Деловой и разговорный режимы",
-  "For teams that want shared voice systems and review flow.":
-    "Для команд с общими профилями голоса и согласованием текстов.",
-  "Shared style libraries": "Общие библиотеки стиля",
-  "Approval-ready draft pipeline": "Согласование черновиков",
-  "Priority onboarding": "Приоритетное подключение",
-  "Build a writing system that sounds like you.":
-    "Создайте систему текстов, которая звучит как вы.",
-  "Get early access": "Получить ранний доступ",
-  "Join the early group for voice profiles, Telegram imports, and assisted replies.":
-    "Присоединяйтесь к ранней группе с профилями голоса, импортом Telegram и умными ответами.",
-  "Work email": "Рабочая почта",
-  "Join early access": "Получить ранний доступ",
-  "We’ll only use it to send access updates.":
-    "Мы используем почту только для новостей о доступе.",
-  "Add a working email to continue.":
-    "Введите действующий адрес электронной почты.",
-  "Request captured": "Заявка принята",
-  "You’re on the list.": "Вы в списке.",
-  "Submit another email": "Отправить другой адрес",
+  "Planned pricing": "Планируемая цена",
+  "3-day free trial": "3 дня бесплатно",
+  "$4.99 per month": "$4.99 в месяц",
+  "$49.99 per year": "$49.99 в год",
+  "Download on the": "Загрузите в",
+  "Coming soon": "Скоро",
   "Back to first screen": "Вернуться к первому экрану",
   "Dashboard preview": "Предпросмотр панели",
   Dashboard: "Главная",
-  Billing: "Оплата",
   Settings: "Настройки",
   "No password yet": "Пока без пароля",
   Menu: "Меню",
@@ -304,7 +264,6 @@ const ru: Record<string, string> = {
   "Most AI writing tools flatten people into the same tone. Founder voice keeps the opposite promise. We are launching the next version of Youmanize. It should sound clear, human, and useful. The message needs to work for a product update, an email, and a short direct message without losing the person behind the writing. The point lands faster, the tone stays composed, and the message keeps its human cadence.":
     "Большинство AI-инструментов делают всех одинаковыми. Голос основателя сохраняет индивидуальность. Мы запускаем новую версию Youmanize — ясную, живую и полезную для поста, письма или короткого сообщения. Суть звучит быстрее, а человеческий ритм остаётся.",
   "Refine my samples": "Уточнить примеры",
-  "Unlock more outputs": "Открыть больше форматов",
   "AI chat": "AI-чат",
   "Talk in any voice.": "Общайтесь любым голосом.",
   "Choose a saved voice and continue a live conversation with its rhythm, vocabulary, and intent.":
@@ -329,8 +288,6 @@ const ru: Record<string, string> = {
   "Text to rewrite": "Текст для переписывания",
   "Output format": "Формат результата",
   "Voice ready": "Голос готов",
-  "Start free. Upgrade when the voice becomes mission-critical.":
-    "Начните бесплатно. Обновитесь, когда голос станет важен для работы.",
   "Prepare account controls.": "Настройте параметры аккаунта.",
   "Youmanize preview": "Предпросмотр Youmanize",
   "Privacy Policy": "Политика конфиденциальности",

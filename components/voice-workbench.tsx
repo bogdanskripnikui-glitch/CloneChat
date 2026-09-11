@@ -6,7 +6,6 @@ import {
   CheckIcon,
   ChevronDownIcon,
   Clock3Icon,
-  CrownIcon,
   FileTextIcon,
   LinkIcon,
   LockKeyholeIcon,
@@ -68,11 +67,6 @@ type AnalysisPhase = "indeterminate" | "determinate"
 type VoiceAnalysisFailure = "too_short" | "low_quality"
 export type DraftKind = "post" | "message" | "email" | "article" | "reply"
 type SourceTab = "paste" | "voice" | "upload" | "sources"
-type PaywallReason = "text_limit" | "analysis_limit"
-
-const FREE_CHARACTER_LIMIT = 300
-const FREE_ANALYSIS_LIMIT = 2
-const ENABLE_USAGE_LIMITS = false
 
 const sourceSamples = {
   url: {
@@ -83,9 +77,9 @@ const sourceSamples = {
       ru: "Я стараюсь сделать обновление продукта полезным уже в первом предложении. Начинаю с результата, убираю лишнее и сохраняю ровный темп. Если что-то важно, говорю об этом прямо. Если нет — вырезаю. Так я пишу посты, заметки о запуске и ответы.",
     },
   },
-  telegram: {
-    title: "Telegram chats",
-    label: "Imported from Telegram export",
+  messages: {
+    title: "Message archive",
+    label: "Imported from your messages",
     text: {
       en: "Need the short version first: we can ship today if the copy stays simple. I would rather say one clear thing than five vague ones. Keep the tone calm, practical, and a little human. If there is friction, name it. If there is progress, show it without dressing it up.",
       ru: "Сначала короткая версия: можем выпустить сегодня, если текст останется простым. Лучше сказать одну ясную вещь, чем пять расплывчатых. Тон — спокойный, практичный и живой. Если есть проблема, назовите её. Если есть прогресс, покажите его без украшательств.",
@@ -156,9 +150,6 @@ export function VoiceWorkbench({
   const [sourceUrl, setSourceUrl] = useState("")
   const [showInputPanel, setShowInputPanel] = useState(true)
   const [analyzedTab, setAnalyzedTab] = useState<SourceTab>("paste")
-  const [analysisCount, setAnalysisCount] = useState(0)
-  const [paywallReason, setPaywallReason] = useState<PaywallReason | null>(null)
-  const [isPaywallDismissed, setIsPaywallDismissed] = useState(false)
   const [isNamingVoice, setIsNamingVoice] = useState(false)
   const [voiceName, setVoiceName] = useState("")
   const [voiceNameError, setVoiceNameError] = useState("")
@@ -187,9 +178,6 @@ export function VoiceWorkbench({
       setSourceUrl("")
       setShowInputPanel(true)
       setAnalyzedTab("paste")
-      setAnalysisCount(0)
-      setPaywallReason(null)
-      setIsPaywallDismissed(false)
       setIsNamingVoice(false)
       setVoiceName("")
       setVoiceNameError("")
@@ -235,65 +223,20 @@ export function VoiceWorkbench({
       return
     }
 
-    if (
-      ENABLE_USAGE_LIMITS &&
-      sourceTab !== "voice" &&
-      localizedText.length > FREE_CHARACTER_LIMIT
-    ) {
-      setIsPaywallDismissed(false)
-      setPaywallReason("text_limit")
-      setError("")
-      setStatus("idle")
-      return
-    }
-
-    if (ENABLE_USAGE_LIMITS && analysisCount >= FREE_ANALYSIS_LIMIT) {
-      setIsPaywallDismissed(false)
-      setPaywallReason("analysis_limit")
-      setError("")
-      setStatus("idle")
-      return
-    }
-
-    if (
-      ENABLE_USAGE_LIMITS &&
-      sourceTab !== "voice" &&
-      localizedText.trim().length < 180
-    ) {
-      setError(
-        "Add at least 180 characters so the analysis can identify a reliable pattern."
-      )
-      return
-    }
-
     setError("")
     setIsNamingVoice(false)
     setVoiceNameError("")
     setVoiceAnalysisFailure(null)
     setAnalysisResult(null)
-    setPaywallReason(null)
-    setIsPaywallDismissed(false)
     setAnalyzedTab(sourceTab)
     setAnalysisPhase("indeterminate")
     setProgress(0)
     setStatus("analyzing")
-    setAnalysisCount((current) => current + 1)
 
     try {
       let sample = localizedText.trim()
       let clonedVoice: SavedVoiceClone | null = null
       if (sourceTab === "voice" && voiceSample) {
-        if (
-          ENABLE_USAGE_LIMITS &&
-          voiceSample.duration !== null &&
-          voiceSample.duration < 20
-        ) {
-          setVoiceAnalysisFailure("too_short")
-          setProgress(100)
-          setShowInputPanel(false)
-          setStatus("failed")
-          return
-        }
         const form = new FormData()
         form.set("file", voiceSample.file)
         const transcriptionResponse = await fetch("/api/stylelab/transcribe", {
@@ -375,7 +318,6 @@ export function VoiceWorkbench({
     setSourceTab("paste")
     setFileName("")
     setError("")
-    setPaywallReason(null)
     setStatus("idle")
     setShowInputPanel(true)
   }
@@ -393,7 +335,6 @@ export function VoiceWorkbench({
     setFileName(file.name)
     setSelectedSource("upload")
     setError("")
-    setPaywallReason(null)
     setStatus("idle")
     setShowInputPanel(true)
   }
@@ -404,7 +345,6 @@ export function VoiceWorkbench({
     setSelectedSource("paste")
     setText("")
     setError("")
-    setPaywallReason(null)
     setStatus("idle")
     setShowInputPanel(true)
   }
@@ -413,7 +353,6 @@ export function VoiceWorkbench({
     setVoiceSample(sample)
     setSelectedSource(sample ? "voice" : "paste")
     setError("")
-    setPaywallReason(null)
     setStatus("idle")
     setVoiceAnalysisFailure(null)
     setShowInputPanel(true)
@@ -436,7 +375,6 @@ export function VoiceWorkbench({
     setSourceTab("paste")
     setFileName("")
     setError("")
-    setPaywallReason(null)
     setStatus("idle")
     setShowInputPanel(true)
   }
@@ -447,20 +385,6 @@ export function VoiceWorkbench({
   const canShowResult = status === "complete" && isResultTab && !showInputPanel
   const canShowFailure = status === "failed" && isResultTab && !showInputPanel
   const shouldShowInputPanel = !canShowCollapsedInput || showInputPanel
-  const isPaywallVisible = paywallReason !== null && !isPaywallDismissed
-  const paywallCopy =
-    paywallReason === "text_limit"
-      ? {
-          title: "Try the paid workflow",
-          description:
-            "Free mode supports up to 300 characters. Upgrade for longer samples, Telegram imports, and unlimited drafts.",
-        }
-      : {
-          title: "Try the paid workflow",
-          description:
-            "You’ve used both free analyses in this preview. Upgrade for unlimited checks, richer sources, and more output modes.",
-        }
-
   function startNamingVoice() {
     setVoiceName("")
     setVoiceNameError("")
@@ -499,47 +423,6 @@ export function VoiceWorkbench({
         data-magnetic-proximity
         className="relative flex max-h-[calc(100svh-10.5rem)] flex-col overflow-hidden rounded-[14px] bg-card p-8 shadow-[0_20px_60px_rgba(29,30,34,0.07)] max-[920px]:max-h-[calc(100svh-8.5rem)] max-[920px]:p-6 max-sm:h-full max-sm:max-h-none max-sm:pb-[6.5rem] sm:max-h-[calc(100svh-11.5rem)] sm:p-10"
       >
-        {isPaywallVisible ? (
-          <div className="absolute inset-0 z-30 flex items-center justify-center bg-white/18 p-8 backdrop-blur-xl">
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="upgrade-title"
-              aria-describedby="upgrade-description"
-              className="w-full max-w-[30rem] text-center"
-            >
-              <div className="mx-auto inline-flex size-12 items-center justify-center rounded-[14px] bg-primary text-primary-foreground">
-                <CrownIcon aria-hidden="true" className="size-5" />
-              </div>
-              <h3
-                id="upgrade-title"
-                className="mt-4 text-[1.35rem] leading-tight font-semibold tracking-[-0.03em]"
-              >
-                {paywallCopy.title}
-              </h3>
-              <p
-                id="upgrade-description"
-                className="mt-3 text-sm leading-relaxed text-muted-foreground"
-              >
-                {paywallCopy.description}
-              </p>
-              <div className="mt-5 flex flex-col items-center gap-3">
-                <Button type="button" onClick={() => onNavigate?.("#pricing")}>
-                  See plans
-                  <ArrowRightIcon data-icon="inline-end" aria-hidden="true" />
-                </Button>
-                <button
-                  type="button"
-                  onClick={() => setIsPaywallDismissed(true)}
-                  className="text-sm font-medium text-foreground/64 transition-colors duration-160 hover:text-foreground"
-                >
-                  Keep free mode
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : null}
-
         <div>
           <div>
             <h2
@@ -689,8 +572,7 @@ export function VoiceWorkbench({
                       </Button>
                     </div>
                     <FieldDescription>
-                      For now this loads a realistic sample flow for URL,
-                      Telegram, or docs-based imports.
+                      Import a public URL, message archive, or document source.
                     </FieldDescription>
                   </Field>
                 </FieldGroup>
@@ -705,10 +587,10 @@ export function VoiceWorkbench({
                       icon: LinkIcon,
                     },
                     {
-                      key: "telegram",
-                      title: "Telegram chats",
+                      key: "messages",
+                      title: "Message archive",
                       description:
-                        "Load chat exports and learn your real conversational rhythm.",
+                        "Load exported messages and learn your conversational rhythm.",
                       icon: SendIcon,
                     },
                     {

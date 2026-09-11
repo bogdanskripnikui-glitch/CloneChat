@@ -18,8 +18,8 @@ export function SiteLegalFooter({ inverse = false }: { inverse?: boolean }) {
           : "border-t border-border/80 text-muted-foreground"
       }
     >
-      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
-        <div className="flex items-center gap-3">
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-2 px-4 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-4">
+        <div className="hidden items-center gap-3 sm:flex">
           <BrandLockup
             compact
             inverse={inverse}
@@ -31,7 +31,7 @@ export function SiteLegalFooter({ inverse = false }: { inverse?: boolean }) {
           <p className="text-sm">© 2026</p>
         </div>
         <nav aria-label="Legal and support">
-          <ul className="flex flex-wrap gap-x-5 gap-y-3 text-sm">
+          <ul className="flex flex-wrap gap-x-4 gap-y-2 text-xs sm:gap-x-5 sm:gap-y-3 sm:text-sm">
             {legalLinks.map((link) => (
               <li key={link.href}>
                 <Link

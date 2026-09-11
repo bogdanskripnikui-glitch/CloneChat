@@ -668,8 +668,7 @@
   }
 
   .platform-feature-list {
-    margin-top: 1rem;
-    gap: 0.65rem;
+    display: none;
   }
 
   .platform-feature-description {
@@ -677,7 +676,15 @@
   }
 
   .platform-visual {
-    height: min(52vh, 28rem) !important;
+    height: min(41vh, 22rem) !important;
+  }
+
+  .platform-release {
+    margin-top: 0.9rem;
+  }
+
+  .platform-section-with-footer {
+    padding-bottom: calc(4.25rem + env(safe-area-inset-bottom));
   }
 
   .platform-floating-card {
@@ -750,12 +757,8 @@
     display: none;
   }
 
-  .platform-feature-list {
-    display: none;
-  }
-
   .platform-visual {
-    height: min(56vh, 24rem) !important;
+    height: min(38vh, 18rem) !important;
   }
 }
 

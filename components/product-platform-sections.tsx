@@ -17,6 +17,8 @@ import {
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { SiteLegalFooter } from "@/components/site-legal-footer"
 
 function useSectionVisible(threshold = 0.38) {
   const [isVisible, setIsVisible] = useState(false)
@@ -42,7 +44,7 @@ const mobileFeatures = [
   {
     icon: FileTextIcon,
     title: "Train from real material",
-    description: "Files, Telegram chats, answers, and phrase choices.",
+    description: "Files, notes, answers, and phrase choices.",
   },
   {
     icon: MessagesSquareIcon,
@@ -138,7 +140,96 @@ type PlatformSectionProps = {
   imageAlt: string
   imageKind: "phone" | "desktop"
   features: typeof mobileFeatures | typeof webFeatures
+  releaseKind: "ios" | "web"
   dark?: boolean
+}
+
+function AppleMark() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="size-7 shrink-0 fill-current"
+    >
+      <path d="M17.05 12.54c.03-2.44 2-3.62 2.09-3.68a4.48 4.48 0 0 0-3.53-1.91c-1.48-.16-2.92.89-3.67.89-.77 0-1.93-.87-3.18-.84a4.69 4.69 0 0 0-3.94 2.4c-1.7 2.94-.43 7.27 1.2 9.64.82 1.16 1.77 2.46 3.02 2.41 1.22-.05 1.68-.77 3.16-.77 1.46 0 1.9.77 3.17.74 1.31-.02 2.14-1.17 2.93-2.34a9.65 9.65 0 0 0 1.34-2.73 4.21 4.21 0 0 1-2.59-3.81ZM14.64 5.38a4.27 4.27 0 0 0 .98-3.07 4.36 4.36 0 0 0-2.83 1.46 4.07 4.07 0 0 0-1 2.96 3.6 3.6 0 0 0 2.85-1.35Z" />
+    </svg>
+  )
+}
+
+function ReleaseDetails({
+  kind,
+  dark,
+}: {
+  kind: "ios" | "web"
+  dark: boolean
+}) {
+  const noteId = `${kind}-availability-note`
+
+  return (
+    <div className="platform-release mt-7">
+      <p
+        className={cn(
+          "text-xs font-medium tracking-[0.12em] uppercase",
+          dark ? "text-primary-foreground/48" : "text-muted-foreground"
+        )}
+      >
+        Planned pricing
+      </p>
+      <div
+        className={cn(
+          "mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm",
+          dark ? "text-primary-foreground/74" : "text-foreground/72"
+        )}
+      >
+        <span>3-day free trial</span>
+        <span aria-hidden="true">·</span>
+        <span>$4.99 per month</span>
+        <span aria-hidden="true">·</span>
+        <span>$49.99 per year</span>
+      </div>
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        {kind === "ios" ? (
+          <Button
+            type="button"
+            disabled
+            aria-disabled="true"
+            aria-describedby={noteId}
+            className="h-auto min-w-[12.5rem] justify-start gap-3 rounded-[12px] px-4 py-2.5 disabled:pointer-events-none disabled:opacity-100"
+          >
+            <AppleMark />
+            <span className="text-left leading-none">
+              <span className="block text-[0.62rem] font-normal tracking-normal">
+                Download on the
+              </span>
+              <span className="mt-1 block text-lg font-medium tracking-[-0.02em]">
+                App Store
+              </span>
+            </span>
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            disabled
+            aria-disabled="true"
+            aria-describedby={noteId}
+            variant="secondary"
+            className="min-w-[10rem] disabled:pointer-events-none disabled:opacity-100"
+          >
+            Coming soon
+          </Button>
+        )}
+        <span
+          id={noteId}
+          className={cn(
+            kind === "web" ? "sr-only" : "text-sm",
+            dark ? "text-primary-foreground/54" : "text-muted-foreground"
+          )}
+        >
+          Coming soon
+        </span>
+      </div>
+    </div>
+  )
 }
 
 function PlatformSection({
@@ -151,6 +242,7 @@ function PlatformSection({
   imageAlt,
   imageKind,
   features,
+  releaseKind,
   dark = false,
 }: PlatformSectionProps) {
   const { isVisible, ref } = useSectionVisible()
@@ -161,11 +253,16 @@ function PlatformSection({
       id={id}
       aria-labelledby={titleId}
       className={cn(
-        "flex h-[100svh] min-h-0 snap-start snap-always items-stretch overflow-hidden",
+        "relative flex h-[100svh] min-h-0 snap-start snap-always items-stretch overflow-hidden",
         dark && "bg-primary text-primary-foreground"
       )}
     >
-      <div className="mobile-section-safe mx-auto flex h-full min-h-0 w-full max-w-[1440px] items-center px-4 pt-20 pb-4 sm:px-5 sm:pt-30 sm:pb-6 xl:px-8 xl:pt-32 xl:pb-8">
+      <div
+        className={cn(
+          "mobile-section-safe mx-auto flex h-full min-h-0 w-full max-w-[1440px] items-center px-4 pt-20 pb-4 sm:px-5 sm:pt-30 sm:pb-6 xl:px-8 xl:pt-32 xl:pb-8",
+          releaseKind === "web" && "platform-section-with-footer"
+        )}
+      >
         <div className="grid h-full min-h-0 w-full items-center gap-5 md:grid-cols-[minmax(0,0.88fr)_minmax(22rem,1.12fr)] md:gap-8 xl:gap-16">
           <div className="flex min-h-0 flex-col justify-center md:max-w-[34rem]">
             <p
@@ -241,6 +338,7 @@ function PlatformSection({
                 )
               })}
             </div>
+            <ReleaseDetails kind={releaseKind} dark={dark} />
           </div>
 
           <figure
@@ -369,6 +467,11 @@ function PlatformSection({
           </figure>
         </div>
       </div>
+      {releaseKind === "web" ? (
+        <div className="absolute inset-x-0 bottom-0 z-20 bg-primary/92 backdrop-blur-sm">
+          <SiteLegalFooter inverse />
+        </div>
+      ) : null}
     </section>
   )
 }
@@ -385,6 +488,7 @@ export function MobileAppSection() {
       imageAlt="Youmanize iOS Profiles screen with voice profile progress and training sources"
       imageKind="phone"
       features={mobileFeatures}
+      releaseKind="ios"
     />
   )
 }
@@ -401,6 +505,7 @@ export function WebAppSection() {
       imageAlt="Youmanize Web profile library with Personal, Work, and Public voices"
       imageKind="desktop"
       features={webFeatures}
+      releaseKind="web"
       dark
     />
   )

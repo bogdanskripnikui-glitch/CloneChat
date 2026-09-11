@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react"
 
 import { ArrowRightIcon } from "lucide-react"
 
-import { FooterSection, PricingSection } from "@/components/landing-sections"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import {
   MobileAppSection,
@@ -28,8 +27,6 @@ const navigation = [
   { label: "Writing modes", href: "#how-it-works" },
   { label: "iOS app", href: "#mobile-app" },
   { label: "Web app", href: "#web-app" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Get in touch", href: "#footer-cta" },
 ]
 
 export default function Page() {
@@ -452,8 +449,6 @@ export default function Page() {
       <WritingModes onRequestVoice={requestVoiceUpload} />
       <MobileAppSection />
       <WebAppSection />
-      <PricingSection onNavigate={navigateToSection} />
-      <FooterSection onNavigate={navigateToSection} />
     </main>
   )
 }

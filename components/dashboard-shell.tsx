@@ -7,8 +7,6 @@ import {
   ArrowRightIcon,
   CheckIcon,
   CopyIcon,
-  CreditCardIcon,
-  CrownIcon,
   DownloadIcon,
   FileTextIcon,
   LayoutDashboardIcon,
@@ -40,13 +38,11 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { VoiceAnalysis, VoiceProfile } from "@/lib/stylelab/types"
 import { cn } from "@/lib/utils"
 
-type DashboardSection = "dashboard" | "chat" | "billing" | "settings"
+type DashboardSection = "dashboard" | "chat" | "settings"
 type OutputKind = "post" | "message" | "email" | "article" | "reply"
-type BillingCycle = "monthly" | "yearly"
 
 const baseVoices: VoiceProfile[] = [
   {
@@ -119,94 +115,8 @@ const initialDraft =
 const railItems = [
   { value: "dashboard", icon: LayoutDashboardIcon, label: "Dashboard" },
   { value: "chat", icon: MessageCircleIcon, label: "AI chat" },
-  { value: "billing", icon: CreditCardIcon, label: "Billing" },
   { value: "settings", icon: Settings2Icon, label: "Settings" },
 ] as const
-
-const billingPlans = {
-  monthly: [
-    {
-      name: "Free",
-      price: "$0",
-      note: "for first analysis",
-      description: "Try the core workflow without an account.",
-      features: [
-        "1 voice profile",
-        "5 generations per week",
-        "Paste text and file upload",
-      ],
-      cta: "Start free",
-      featured: false,
-    },
-    {
-      name: "Pro",
-      price: "$24",
-      note: "per month",
-      description: "For creators and operators who need daily output.",
-      features: [
-        "Unlimited generations",
-        "Telegram chat imports",
-        "Separate business and casual modes",
-      ],
-      cta: "Join Pro waitlist",
-      featured: true,
-    },
-    {
-      name: "Teams",
-      price: "$79",
-      note: "per workspace",
-      description: "For teams that want shared voice systems and review flow.",
-      features: [
-        "Shared style libraries",
-        "Approval-ready draft pipeline",
-        "Priority onboarding",
-      ],
-      cta: "Request access",
-      featured: false,
-    },
-  ],
-  yearly: [
-    {
-      name: "Free",
-      price: "$0",
-      note: "always free",
-      description: "Try the core workflow without an account.",
-      features: [
-        "1 voice profile",
-        "5 generations per week",
-        "Paste text and file upload",
-      ],
-      cta: "Start free",
-      featured: false,
-    },
-    {
-      name: "Pro",
-      price: "$228",
-      note: "per year · save 21%",
-      description: "For creators and operators who need daily output.",
-      features: [
-        "Unlimited generations",
-        "Telegram chat imports",
-        "Separate business and casual modes",
-      ],
-      cta: "Join Pro waitlist",
-      featured: true,
-    },
-    {
-      name: "Teams",
-      price: "$790",
-      note: "per year",
-      description: "For teams that want shared voice systems and review flow.",
-      features: [
-        "Shared style libraries",
-        "Approval-ready draft pipeline",
-        "Priority onboarding",
-      ],
-      cta: "Request access",
-      featured: false,
-    },
-  ],
-} as const
 
 export function DashboardShell() {
   const [activeSection, setActiveSection] =
@@ -215,7 +125,6 @@ export function DashboardShell() {
   const [activeVoiceId, setActiveVoiceId] = useState(baseVoices[0]?.id ?? "")
   const [sourceText, setSourceText] = useState(initialDraft)
   const [outputKind, setOutputKind] = useState<OutputKind>("post")
-  const [billingCycle, setBillingCycle] = useState<BillingCycle>("monthly")
   const [savedCount, setSavedCount] = useState(2)
   const [copied, setCopied] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -891,10 +800,6 @@ export function DashboardShell() {
                             </Field>
 
                             <div className="flex flex-wrap items-center gap-2 pt-1">
-                              <span className="rounded-full border border-border/70 bg-background px-3 py-1.5 text-xs text-muted-foreground">
-                                Free: 300 chars
-                              </span>
-
                               <Button
                                 type="button"
                                 className="ml-auto h-11 rounded-[20px] px-5"
@@ -1018,9 +923,9 @@ export function DashboardShell() {
                               type="button"
                               variant="outline"
                               size="sm"
-                              onClick={() => setActiveSection("billing")}
+                              onClick={() => setActiveSection("settings")}
                             >
-                              Unlock more outputs
+                              Settings
                             </Button>
                           </div>
                         </div>
@@ -1035,154 +940,6 @@ export function DashboardShell() {
                   onSelectVoice={setActiveVoiceId}
                   onAddVoice={openVoiceDialog}
                 />
-              ) : activeSection === "billing" ? (
-                <section className="screen-shift screen-shift-visible screen-shift-delay-2 flex min-h-0 w-full flex-1 flex-col">
-                  <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-                    <div className="max-w-[43rem]">
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Pricing
-                      </p>
-                      <h1 className="mt-2 text-[clamp(2.5rem,4vw,4.25rem)] leading-[0.96] font-medium tracking-[-0.04em] text-balance">
-                        Start free. Upgrade when the voice becomes
-                        mission-critical.
-                      </h1>
-                      <p className="mt-4 max-w-[37rem] text-base leading-relaxed text-muted-foreground">
-                        The free tier proves the voice fit. Paid plans unlock
-                        Telegram imports, more modes, unlimited drafts, and
-                        collaborative review.
-                      </p>
-                    </div>
-
-                    <Tabs
-                      value={billingCycle}
-                      onValueChange={(value) =>
-                        setBillingCycle(value as BillingCycle)
-                      }
-                    >
-                      <TabsList
-                        aria-label="Billing cycle"
-                        className="h-11 rounded-[20px] bg-white p-1 shadow-[0_8px_20px_rgba(29,30,34,0.06)]"
-                      >
-                        <TabsTrigger
-                          value="monthly"
-                          className="h-full min-w-24 rounded-[10px] px-5 text-sm font-medium text-foreground/48 hover:text-foreground/72 data-active:bg-primary data-active:text-primary-foreground data-active:shadow-none data-active:hover:text-primary-foreground"
-                        >
-                          Monthly
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="yearly"
-                          className="h-full min-w-24 rounded-[10px] px-5 text-sm font-medium text-foreground/48 hover:text-foreground/72 data-active:bg-primary data-active:text-primary-foreground data-active:shadow-none data-active:hover:text-primary-foreground"
-                        >
-                          Yearly
-                        </TabsTrigger>
-                      </TabsList>
-                    </Tabs>
-                  </div>
-
-                  <div className="mt-7 no-scrollbar flex min-h-0 flex-1 snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-2 lg:grid lg:grid-cols-3 lg:overflow-visible lg:pb-0">
-                    {billingPlans[billingCycle].map((plan) => (
-                      <article
-                        key={plan.name}
-                        className={cn(
-                          "flex min-h-[30rem] shrink-0 basis-[min(25rem,calc(100vw-3rem))] snap-center flex-col rounded-[16px] p-7 lg:min-h-0 lg:min-w-0 lg:basis-auto lg:p-8",
-                          plan.featured
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-white/84 text-foreground"
-                        )}
-                      >
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <p
-                              className={cn(
-                                "text-sm",
-                                plan.featured
-                                  ? "text-primary-foreground/70"
-                                  : "text-muted-foreground"
-                              )}
-                            >
-                              {plan.name}
-                            </p>
-                            <p className="mt-3 text-[2.8rem] leading-none font-medium tracking-[-0.04em]">
-                              {plan.price}
-                            </p>
-                            <p
-                              className={cn(
-                                "mt-2 text-sm",
-                                plan.featured
-                                  ? "text-primary-foreground/70"
-                                  : "text-muted-foreground"
-                              )}
-                            >
-                              {plan.note}
-                            </p>
-                          </div>
-                          {plan.featured ? (
-                            <span className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/12 px-3 py-1 text-xs font-medium text-primary-foreground/80">
-                              <CrownIcon
-                                aria-hidden="true"
-                                className="size-3.5"
-                              />
-                              Most wanted
-                            </span>
-                          ) : null}
-                        </div>
-
-                        <p
-                          className={cn(
-                            "mt-6 text-sm leading-relaxed",
-                            plan.featured
-                              ? "text-primary-foreground/78"
-                              : "text-muted-foreground"
-                          )}
-                        >
-                          {plan.description}
-                        </p>
-
-                        <div className="mt-8 flex flex-1 flex-col gap-4">
-                          {plan.features.map((feature) => (
-                            <div
-                              key={feature}
-                              className="flex items-start gap-3"
-                            >
-                              <CheckIcon
-                                aria-hidden="true"
-                                className="mt-0.5 size-4 shrink-0"
-                              />
-                              <p
-                                className={cn(
-                                  "text-sm leading-relaxed",
-                                  plan.featured
-                                    ? "text-primary-foreground/82"
-                                    : "text-foreground/78"
-                                )}
-                              >
-                                {feature}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-
-                        <Button
-                          type="button"
-                          variant={plan.featured ? "outline" : "default"}
-                          size="lg"
-                          className="mt-10"
-                          onClick={() =>
-                            setActiveSection(
-                              plan.featured ? "settings" : "dashboard"
-                            )
-                          }
-                        >
-                          {plan.cta}
-                          <ArrowRightIcon
-                            data-icon="inline-end"
-                            aria-hidden="true"
-                          />
-                        </Button>
-                      </article>
-                    ))}
-                  </div>
-                </section>
               ) : (
                 <section className="screen-shift screen-shift-visible screen-shift-delay-2 flex min-h-0 w-full flex-1 flex-col gap-4">
                   <div className="flex min-h-0 flex-1 flex-col rounded-[28px] border border-border/70 bg-white/88 p-4 shadow-[0_14px_36px_rgba(29,30,34,0.06)]">
