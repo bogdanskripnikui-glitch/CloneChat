@@ -78,8 +78,8 @@ export default function PrivacyPage() {
         <p>
           Because there is no account, account deletion is not applicable. For a
           privacy request concerning security or App Attest records, email{" "}
-          <a href="mailto:bogdan.skripnikui@gmail.com">
-            bogdan.skripnikui@gmail.com
+          <a href="mailto:youmanize.support@proton.me">
+            youmanize.support@proton.me
           </a>
           .
         </p>
@@ -103,8 +103,8 @@ export default function PrivacyPage() {
           We may update this policy as the app changes. The effective date above
           identifies the current version. Questions may be sent to Skrypnyk
           Bohdan at{" "}
-          <a href="mailto:bogdan.skripnikui@gmail.com">
-            bogdan.skripnikui@gmail.com
+          <a href="mailto:youmanize.support@proton.me">
+            youmanize.support@proton.me
           </a>
           .
         </p>

@@ -19,8 +19,8 @@ export default function SupportPage() {
         <h2>Contact</h2>
         <p>
           Email{" "}
-          <a href="mailto:bogdan.skripnikui@gmail.com">
-            bogdan.skripnikui@gmail.com
+          <a href="mailto:youmanize.support@proton.me">
+            youmanize.support@proton.me
           </a>
           . Use one of these subject lines: Technical issue, Billing or
           subscription, Privacy or data request, or Feature request.

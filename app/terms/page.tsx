@@ -92,8 +92,8 @@ export default function TermsPage() {
           Ukraine, subject to any mandatory consumer protections in your
           country. Courts with jurisdiction under applicable law may hear
           disputes. Questions may be sent to Skrypnyk Bohdan at{" "}
-          <a href="mailto:bogdan.skripnikui@gmail.com">
-            bogdan.skripnikui@gmail.com
+          <a href="mailto:youmanize.support@proton.me">
+            youmanize.support@proton.me
           </a>
           .
         </p>

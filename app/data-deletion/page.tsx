@@ -50,8 +50,8 @@ export default function DataDeletionPage() {
         <p>
           For a privacy request concerning Cloudflare/OpenAI processing or App
           Attest security records, email{" "}
-          <a href="mailto:bogdan.skripnikui@gmail.com">
-            bogdan.skripnikui@gmail.com
+          <a href="mailto:youmanize.support@proton.me">
+            youmanize.support@proton.me
           </a>
           . App Attest records are normally retained for 90 days after the last
           verified request.
